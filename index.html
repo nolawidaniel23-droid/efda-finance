@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EFDA Finance</title>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Charts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- SheetJS for Excel export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;}
+
+/* LOGIN */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a2332 0%,#0d1b2a 100%);}
+.login-card{background:#fff;border-radius:16px;padding:40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-logo{text-align:center;margin-bottom:28px;font-size:28px;font-weight:800;color:#1a2332;}
+.login-logo span{color:#00bcd4;}
+.login-subtitle{text-align:center;color:#8a9bbd;font-size:13px;margin-bottom:28px;}
+.login-form .form-group{margin-bottom:16px;}
+.login-form label{display:block;font-size:11px;font-weight:700;color:#8a9bbd;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.login-form input{width:100%;padding:11px 14px;border:1.5px solid #dde3ed;border-radius:8px;font-size:14px;color:#1a2332;transition:border .2s;}
+.login-form input:focus{outline:none;border-color:#00bcd4;}
+.btn-login{width:100%;padding:12px;background:#00bcd4;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:4px;}
+.btn-login:hover{background:#0097a7;}
+.btn-google{width:100%;padding:11px;background:#fff;color:#1a2332;border:1.5px solid #dde3ed;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;transition:border .2s;}
+.btn-google:hover{border-color:#00bcd4;}
+.divider{text-align:center;color:#8a9bbd;font-size:12px;margin:14px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#dde3ed;}
+.divider::before{left:0;} .divider::after{right:0;}
+.login-error{background:#ffebee;color:#c62828;padding:10px 14px;border-radius:6px;font-size:12px;margin-bottom:14px;display:none;}
+
+/* APP */
+#app{display:none;height:100vh;overflow:hidden;flex-direction:row;}
+#app.show{display:flex;}
+
+/* SIDEBAR */
+#sidebar{width:200px;min-width:200px;background:#1a2332;color:#fff;display:flex;flex-direction:column;height:100vh;overflow-y:auto;}
+.logo{padding:18px 16px;font-size:19px;font-weight:700;border-bottom:1px solid #2a3547;}
+.logo span{color:#00bcd4;}
+.nav-section{padding:12px 16px 4px;font-size:10px;color:#6b7a99;text-transform:uppercase;letter-spacing:1px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:#8a9bbd;font-size:13px;transition:all .2s;border-left:3px solid transparent;}
+.nav-item:hover{background:#243044;color:#fff;}
+.nav-item.active{background:#243044;color:#00bcd4;border-left-color:#00bcd4;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.user-area{margin-top:auto;padding:12px 16px;border-top:1px solid #2a3547;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.user-area:hover{background:#243044;}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:#5c6bc0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.user-info{font-size:12px;overflow:hidden;} .user-info strong{display:block;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .user-info span{color:#8a9bbd;font-size:11px;}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8edf2;flex-shrink:0;}
+.topbar-left h1{font-size:20px;font-weight:700;color:#1a2332;}
+.topbar-left p{font-size:12px;color:#8a9bbd;margin-top:2px;}
+.topbar-actions{display:flex;gap:8px;}
+.content{flex:1;overflow-y:auto;padding:24px;}
+
+/* BUTTONS */
+.btn{padding:9px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+.btn-primary{background:#00bcd4;color:#fff;} .btn-primary:hover{background:#0097a7;}
+.btn-secondary{background:#fff;color:#1a2332;border:1px solid #dde3ed;} .btn-secondary:hover{background:#f5f7fa;}
+.btn-danger{background:#f44336;color:#fff;} .btn-danger:hover{background:#d32f2f;}
+.btn-success{background:#4caf50;color:#fff;} .btn-success:hover{background:#388e3c;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:10px;padding:18px 20px;border-top:4px solid #00bcd4;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.stat-card.green{border-top-color:#4caf50;} .stat-card.red{border-top-color:#f44336;} .stat-card.orange{border-top-color:#ff9800;} .stat-card.purple{border-top-color:#9c27b0;}
+.stat-icon{font-size:20px;margin-bottom:8px;}
+.stat-value{font-size:20px;font-weight:700;color:#1a2332;}
+.stat-label{font-size:12px;color:#8a9bbd;margin-top:3px;}
+
+/* TABLE CARD */
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px;}
+.card-header{padding:14px 20px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;justify-content:space-between;}
+.card-header h3{font-size:14px;font-weight:600;color:#1a2332;}
+.card-body{padding:20px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:11px;text-transform:uppercase;color:#8a9bbd;padding:10px 12px;border-bottom:1px solid #f0f2f5;letter-spacing:.5px;}
+td{padding:11px 12px;font-size:13px;color:#2d3a4e;border-bottom:1px solid #f8f9fb;}
+tr:last-child td{border-bottom:none;} tr:hover td{background:#fafbfc;}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-success{background:#e8f5e9;color:#388e3c;} .badge-warning{background:#fff3e0;color:#f57c00;} .badge-danger{background:#ffebee;color:#c62828;} .badge-info{background:#e3f2fd;color:#1565c0;} .badge-gray{background:#f5f5f5;color:#616161;}
+.amount-positive{color:#2e7d32;font-weight:600;} .amount-negative{color:#c62828;font-weight:600;}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:11px;font-weight:700;color:#8a9bbd;text-transform:uppercase;letter-spacing:.5px;}
+input,select,textarea{padding:10px 12px;border:1.5px solid #dde3ed;border-radius:6px;font-size:13px;color:#1a2332;transition:border .2s;background:#fff;width:100%;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#00bcd4;}
+textarea{resize:vertical;min-height:70px;}
+.required{color:#f44336;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+.modal-header{padding:16px 24px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.modal-header h3{font-size:15px;font-weight:700;color:#1a2332;}
+.modal-body{padding:24px;}
+.modal-footer{padding:14px 24px;border-top:1px solid #f0f2f5;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;}
+.close-btn{background:none;border:none;cursor:pointer;color:#8a9bbd;font-size:22px;line-height:1;padding:0 4px;}
+
+/* LIVE BANNER */
+.live-banner{background:#1a2332;color:#fff;padding:10px 20px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;font-size:12px;}
+.live-dot{width:8px;height:8px;background:#00bcd4;border-radius:50%;display:inline-block;margin-right:6px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.chart-card h3{font-size:13px;font-weight:600;color:#1a2332;margin-bottom:14px;}
+canvas{max-height:220px;}
+
+/* ITEMS TABLE */
+.items-table{width:100%;margin-top:8px;}
+.items-table th{background:#f8f9fb;}
+.item-row td{padding:7px 10px;}
+.item-total{text-align:right;padding:12px 0;font-size:15px;font-weight:700;color:#1a2332;border-top:2px solid #f0f2f5;margin-top:8px;}
+
+/* DETAIL MODAL */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.detail-item label{font-size:10px;font-weight:700;color:#8a9bbd;text-transform:uppercase;}
+.detail-item p{font-size:13px;color:#1a2332;margin-top:2px;}
+
+/* ACTION BTNS */
+.action-btns{display:flex;gap:5px;}
+.icon-btn{background:none;border:1px solid #dde3ed;border-radius:5px;cursor:pointer;padding:5px 7px;color:#8a9bbd;font-size:13px;} .icon-btn:hover{border-color:#00bcd4;color:#00bcd4;}
+.icon-btn.del:hover{border-color:#f44336;color:#f44336;}
+
+/* SEARCH ROW */
+.search-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.search-row input{flex:1;min-width:160px;max-width:240px;}
+.filter-select{padding:9px 12px;border:1.5px solid #dde3ed;border-radius:6px;font-size:13px;background:#fff;}
+
+/* INVOICE */
+.invoice-preview{border:1px solid #dde3ed;border-radius:8px;padding:24px;}
+.inv-title{font-size:26px;font-weight:800;color:#00bcd4;}
+
+/* SETTINGS */
+.settings-section{margin-bottom:22px;}
+.settings-section h4{font-size:13px;font-weight:700;color:#1a2332;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f2f5;}
+
+/* USER MGMT */
+.role-badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;}
+.role-admin{background:#e3f2fd;color:#1565c0;} .role-manager{background:#e8f5e9;color:#2e7d32;} .role-viewer{background:#fff3e0;color:#e65100;}
+
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* VAT */
+.vat-row{display:flex;justify-content:flex-end;gap:12px;align-items:center;padding:6px 0;font-size:13px;}
+.vat-row span{color:#8a9bbd;}
+.vat-row strong{color:#1a2332;}
+
+.page{display:none;} .page.active{display:block;}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;color:#8a9bbd;}
+.spinner{display:inline-block;width:32px;height:32px;border:3px solid #f0f2f5;border-top-color:#00bcd4;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast-item{background:#1a2332;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.2);border-left:4px solid #00bcd4;animation:slideIn .3s ease;}
+.toast-item.error{border-left-color:#f44336;}
+.toast-item.success{border-left-color:#4caf50;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">💧 <span>EFDA</span>Finance</div>
+    <p class="login-subtitle">Sign in to manage EFDA General Trading PLC finances</p>
+    <div id="loginError" class="login-error"></div>
+    <div class="login-form">
+      <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')signIn()"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')signIn()"></div>
+      <button class="btn-login" onclick="signIn()">Sign In</button>
+      <div class="divider">or</div>
+      <button class="btn-google" onclick="signInGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#8a9bbd;margin-top:16px;">Access restricted to authorized EFDA staff</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="logo">💧 <span>EFDA</span>Finance</div>
+    <div class="nav-section">Main Menu</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard</div>
+    <div class="nav-item" onclick="showPage('sales')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Sales</div>
+    <div class="nav-item" onclick="showPage('expenses')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Expenses</div>
+    <div class="nav-item" onclick="showPage('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Analytics</div>
+    <div class="nav-item" onclick="showPage('accounts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Accounts</div>
+    <div class="nav-section">Management</div>
+    <div class="nav-item" onclick="showPage('transfers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Transfers</div>
+    <div class="nav-item" onclick="showPage('invoices')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Invoices</div>
+    <div class="nav-item" onclick="showPage('users')" id="navUsers" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Users</div>
+    <div class="nav-item" onclick="showPage('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Settings</div>
+    <div class="user-area" onclick="showPage('settings')">
+      <div class="user-avatar" id="sidebarAvatar">?</div>
+      <div class="user-info"><strong id="sidebarName">Loading...</strong><span id="sidebarRole">—</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div class="topbar">
+      <div class="topbar-left"><h1 id="pageTitle">Financial Dashboard</h1><p id="pageSubtitle"></p></div>
+      <div class="topbar-actions" id="topbarActions"></div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="live-banner"><span><span class="live-dot"></span> Live — Real-time financial data</span><span id="liveBannerRight"></span></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">💳</div><div class="stat-value" id="dash-balance">ETB 0</div><div class="stat-label">Total Bank Balance</div></div>
+          <div class="stat-card green"><div class="stat-icon">⬇️</div><div class="stat-value" id="dash-income">ETB 0</div><div class="stat-label">Monthly Income</div></div>
+          <div class="stat-card red"><div class="stat-icon">⬆️</div><div class="stat-value" id="dash-expenses">ETB 0</div><div class="stat-label">Monthly Expenses</div></div>
+          <div class="stat-card orange"><div class="stat-icon">🐷</div><div class="stat-value" id="dash-savings">ETB 0</div><div class="stat-label">Net Savings</div></div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card"><h3>📈 Cash Flow (12 Months)</h3><canvas id="cashFlowChart"></canvas></div>
+          <div class="chart-card"><h3>🍩 Expense Categories</h3><canvas id="expensePieChart"></canvas><p id="noExpenseMsg" style="text-align:center;color:#8a9bbd;font-size:12px;margin-top:10px;display:none;">No expenses this month</p></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Recent Transactions</h3><button class="btn btn-secondary btn-sm" onclick="exportExcel()">📥 Export Excel</button></div><div style="padding:0;"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recentTxTable"><tr><td colspan="5" class="loading"><div class="spinner"></div><br>Loading...</td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- SALES -->
+      <div id="page-sales" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="sales-today-count">0</div><div class="stat-label">Today's Sales</div></div>
+          <div class="stat-card green"><div class="stat-icon">💰</div><div class="stat-value" id="sales-today-rev">ETB 0</div><div class="stat-label">Today's Revenue</div></div>
+          <div class="stat-card orange"><div class="stat-icon">📆</div><div class="stat-value" id="sales-week">0</div><div class="stat-label">This Week</div></div>
+          <div class="stat-card purple"><div class="stat-icon">📊</div><div class="stat-value" id="sales-month">0</div><div class="stat-label">This Month</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>All Sales</h3><div style="display:flex;gap:8px;"><button class="btn btn-secondary btn-sm" onclick="exportSalesExcel()">📥 Export</button><button class="btn btn-primary btn-sm" onclick="openSaleModal()">+ New Sale</button></div></div>
+          <div style="padding:12px 20px 0;">
+            <div class="search-row">
+              <input type="text" id="salesSearch" placeholder="Search customer..." oninput="renderSalesTable()">
+              <select class="filter-select" id="salesStatusFilter" onchange="renderSalesTable()"><option value="">All Status</option><option>Paid</option><option>Pending</option><option>Partial</option></select>
+            </div>
+          </div>
+          <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Sales ID</th><th>Date</th><th>Customer</th><th>Items</th><th>Subtotal</th><th>VAT</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody id="salesTable"><tr><td colspan="10" class="loading"><div class="spinner"></div></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- EXPENSES -->
+      <div id="page-expenses" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="exp-today">ETB 0</div><div class="stat-label" id="exp-today-label">Today (0)</div></div>
+          <div class="stat-card red"><div class="stat-icon">📆</div><div class="stat-value" id="exp-month">ETB 0</div><div class="stat-label" id="exp-month-label">This Month (0)</div></div>
+          <div class="stat-card orange"><div class="stat-icon">⏳</div><div class="stat-value" id="exp-pending">ETB 0</div><div class="stat-label" id="exp-pending-label">Pending (0)</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Expenses</h3><div style="display:flex;gap:8px;"><button class="btn btn-secondary btn-sm" onclick="exportExpensesExcel()">📥 Export</button><button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ New Expense</button></div></div>
+          <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Date</th><th>Reason</th><th>Type</th><th>Amount</th><th>Bank Account</th><th>Requested By</th><th>Approved By</th><th>Status</th><th>Actions</th></tr></thead><tbody id="expenseTable"><tr><td colspan="9" class="loading"><div class="spinner"></div></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div id="page-analytics" class="page">
+        <div class="stats-grid">
+          <div class="stat-card green"><div class="stat-icon">📈</div><div class="stat-value" id="ana-total-sales">ETB 0</div><div class="stat-label">Total Sales</div></div>
+          <div class="stat-card red"><div class="stat-icon">📉</div><div class="stat-value" id="ana-total-exp">ETB 0</div><div class="stat-label">Total Expenses</div></div>
+          <div class="stat-card"><div class="stat-icon">💹</div><div class="stat-value" id="ana-profit">ETB 0</div><div class="stat-label">Net Profit</div></div>
+          <div class="stat-card orange"><div class="stat-icon">📋</div><div class="stat-value" id="ana-invoices">0</div><div class="stat-label">Invoices</div></div>
+        </div>
+        <div class="analytics-grid">
+          <div class="chart-card"><h3>Monthly Sales vs Expenses (6 months)</h3><canvas id="barChart"></canvas></div>
+          <div class="chart-card"><h3>Sales by Payment Method</h3><canvas id="paymentPieChart"></canvas></div>
+        </div>
+        <div class="analytics-grid" style="margin-top:16px;">
+          <div class="chart-card"><h3>Top Customers</h3><canvas id="customerChart"></canvas></div>
+          <div class="chart-card"><h3>Expense Breakdown</h3><canvas id="expBreakChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ACCOUNTS -->
+      <div id="page-accounts" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">🏦</div><div class="stat-value" id="acc-count">0</div><div class="stat-label">Active Accounts</div></div>
+          <div class="stat-card green"><div class="stat-icon">💰</div><div class="stat-value" id="acc-total">ETB 0</div><div class="stat-label">Total Balance</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Bank Accounts</h3><button class="btn btn-primary btn-sm" onclick="openAccountModal()">+ Add Account</button></div><div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Bank</th><th>Account Number</th><th>Holder</th><th>Type</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead><tbody id="accountsTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- TRANSFERS -->
+      <div id="page-transfers" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-value" id="tr-count">0</div><div class="stat-label">Total Transfers</div></div>
+          <div class="stat-card green"><div class="stat-icon">💸</div><div class="stat-value" id="tr-total">ETB 0</div><div class="stat-label">Total Transferred</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>New Transfer</h3></div><div class="card-body">
+          <div class="form-grid">
+            <div class="form-group"><label>From Account *</label><select id="tr-from"></select></div>
+            <div class="form-group"><label>To Account *</label><select id="tr-to"></select></div>
+            <div class="form-group"><label>Amount (ETB) *</label><input type="number" id="tr-amount" min="0" step="0.01" placeholder="0.00"></div>
+            <div class="form-group"><label>Date *</label><input type="date" id="tr-date"></div>
+            <div class="form-group full"><label>Description</label><input type="text" id="tr-desc" placeholder="Notes..."></div>
+          </div>
+          <div style="margin-top:16px;text-align:right;"><button class="btn btn-primary" onclick="saveTransfer()">↗ Execute Transfer</button></div>
+        </div></div>
+        <div class="card"><div class="card-header"><h3>Transfer History</h3></div><div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Date</th><th>From</th><th>To</th><th>Amount</th><th>By</th><th>Description</th></tr></thead><tbody id="transferTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- INVOICES -->
+      <div id="page-invoices" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="inv-total">0</div><div class="stat-label">Total Invoices</div></div>
+          <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value" id="inv-paid">0</div><div class="stat-label">Paid</div></div>
+          <div class="stat-card orange"><div class="stat-icon">⏳</div><div class="stat-value" id="inv-pending">0</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card red"><div class="stat-icon">❌</div><div class="stat-value" id="inv-overdue">0</div><div class="stat-label">Overdue</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Invoices</h3><button class="btn btn-primary btn-sm" onclick="openInvoiceModal()">+ New Invoice</button></div><div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Invoice #</th><th>Date</th><th>Client</th><th>Type</th><th>Subtotal</th><th>VAT (15%)</th><th>Total</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead><tbody id="invoicesTable"><tr><td colspan="10" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- USERS -->
+      <div id="page-users" class="page">
+        <div class="card"><div class="card-header"><h3>👥 Staff Accounts</h3><button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Invite User</button></div>
+        <div style="padding:0;"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last Active</th><th>Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="page-settings" class="page">
+        <div class="card"><div class="card-header"><h3>⚙️ Settings</h3></div><div class="card-body">
+          <div class="settings-section"><h4>Company</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>Company Name</label><input type="text" id="set-company" value="EFDA General Trading PLC"></div>
+              <div class="form-group"><label>TIN Number</label><input type="text" id="set-tin" placeholder="Company TIN"></div>
+              <div class="form-group"><label>Address</label><input type="text" id="set-address" placeholder="Company address"></div>
+              <div class="form-group"><label>Phone</label><input type="text" id="set-phone" placeholder="+251..."></div>
+            </div>
+          </div>
+          <div class="settings-section"><h4>Your Profile</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>Display Name</label><input type="text" id="set-name" placeholder="Your name"></div>
+              <div class="form-group"><label>Role</label><input type="text" id="set-role" placeholder="Finance Manager" readonly style="background:#f8f9fb;"></div>
+            </div>
+          </div>
+          <div class="settings-section"><h4>VAT Settings</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>VAT Rate (%)</label><input type="number" id="set-vat" value="15" min="0" max="100"></div>
+              <div class="form-group"><label>VAT Registration Number</label><input type="text" id="set-vatreg" placeholder="VAT Reg. No."></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+            <button class="btn btn-secondary" onclick="signOut()">🚪 Sign Out</button>
+          </div>
+        </div></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- SALE MODAL -->
+<div class="modal-overlay" id="saleModal">
+  <div class="modal">
+    <div class="modal-header"><h3>🛒 Record New Sale</h3><span style="font-size:11px;color:#00bcd4;font-weight:700;" id="saleIdDisplay"></span><button class="close-btn" onclick="closeModal('saleModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Customer Name *</label><input type="text" id="sale-customer" placeholder="Customer name"></div>
+        <div class="form-group"><label>TIN Number</label><input type="text" id="sale-tin" placeholder="Optional"></div>
+        <div class="form-group"><label>Sale Date *</label><input type="date" id="sale-date"></div>
+        <div class="form-group"><label>Sale Time *</label><input type="time" id="sale-time"></div>
+        <div class="form-group"><label>Payment Method</label><select id="sale-payment"><option>Cash</option><option>Bank Transfer</option><option>Cheque</option><option>Mobile Money</option></select></div>
+        <div class="form-group"><label>Payment Status</label><select id="sale-status"><option>Paid</option><option>Pending</option><option>Partial</option></select></div>
+        <div class="form-group"><label>Deposit to Account</label><select id="sale-account"><option value="">Not deposited</option></select></div>
+        <div class="form-group"><label>Recorded By</label><input type="text" id="sale-recorded"></div>
+        <div class="form-group"><label>Apply VAT (15%)</label><select id="sale-vat"><option value="1">Yes</option><option value="0">No</option></select></div>
+      </div>
+      <div style="margin-top:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="font-size:13px;">📦 Items</strong><button class="btn btn-secondary btn-sm" onclick="addSaleItem()">+ Add Item</button></div>
+        <table class="items-table"><thead><tr><th>#</th><th>Item *</th><th>Description</th><th>Qty *</th><th>Unit Price *</th><th>Subtotal</th><th></th></tr></thead><tbody id="saleItemsBody"></tbody></table>
+        <div class="vat-row"><span>Subtotal:</span><strong id="saleSubtotal">ETB 0.00</strong></div>
+        <div class="vat-row" id="saleVatRow"><span>VAT (15%):</span><strong id="saleVatAmt">ETB 0.00</strong></div>
+        <div class="item-total">Grand Total: <span id="saleGrandTotal" style="color:#00bcd4;">ETB 0.00</span></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('saleModal')">Cancel</button><button class="btn btn-primary" onclick="saveSale()" id="saveSaleBtn">💾 Save Sale</button></div>
+  </div>
+</div>
+
+<!-- SALE DETAIL MODAL -->
+<div class="modal-overlay" id="saleDetailModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><h3>📋 Sale Details</h3><button class="close-btn" onclick="closeModal('saleDetailModal')">×</button></div>
+    <div class="modal-body" id="saleDetailBody"></div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><h3>💸 New Expense</h3><button class="close-btn" onclick="closeModal('expenseModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Reason *</label><input type="text" id="exp-reason" placeholder="e.g. supply, salary..."></div>
+        <div class="form-group"><label>Type *</label><select id="exp-type"><option>Office Supplies</option><option>Salary</option><option>Rent</option><option>Utilities</option><option>Transport</option><option>Marketing</option><option>Equipment</option><option>Maintenance</option><option>Raw Materials</option><option>Other</option></select></div>
+        <div class="form-group"><label>Amount (ETB) *</label><input type="number" id="exp-amount" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label>Date *</label><input type="date" id="exp-date"></div>
+        <div class="form-group"><label>Bank Account</label><select id="exp-account"><option value="">Select account...</option></select></div>
+        <div class="form-group"><label>Status</label><select id="exp-status"><option>Completed</option><option>Pending</option><option>Approved</option></select></div>
+        <div class="form-group"><label>Requested By</label><input type="text" id="exp-requested" placeholder="Name"></div>
+        <div class="form-group"><label>Approved By</label><input type="text" id="exp-approved" placeholder="Name"></div>
+        <div class="form-group full"><label>Notes</label><textarea id="exp-notes" placeholder="Additional notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">💾 Save</button></div>
+  </div>
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header"><h3 id="accountModalTitle">🏦 Add Account</h3><button class="close-btn" onclick="closeModal('accountModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Bank Name *</label><input type="text" id="acc-bank" list="bankList" placeholder="Search bank..."><datalist id="bankList"><option>Commercial Bank of Ethiopia (CBE)</option><option>Cooperative Bank of Oromia</option><option>Goh Betoch Bank</option><option>Awash Bank</option><option>Dashen Bank</option><option>Abyssinia Bank</option><option>United Bank</option><option>Nib International Bank</option><option>Wegagen Bank</option><option>Berhan Bank</option><option>Oromia International Bank</option><option>Zemen Bank</option><option>Bunna International Bank</option><option>Enat Bank</option><option>Amhara Bank</option><option>Telebirr</option></datalist></div>
+        <div class="form-group"><label>Account Number *</label><input type="text" id="acc-number" placeholder="Account number"></div>
+        <div class="form-group"><label>Account Holder</label><input type="text" id="acc-holder" placeholder="Holder name"></div>
+        <div class="form-group"><label>Type</label><select id="acc-type"><option>Checking</option><option>Savings</option><option>Business</option><option>Mobile</option></select></div>
+        <div class="form-group"><label>Balance (ETB) *</label><input type="number" id="acc-balance" min="0" step="0.01" value="0.00"></div>
+        <div class="form-group"><label>Status</label><select id="acc-status"><option>Active</option><option>Inactive</option></select></div>
+        <div class="form-group full"><label>Notes</label><textarea id="acc-desc" placeholder="Notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('accountModal')">Cancel</button><button class="btn btn-primary" id="accSaveBtn" onclick="saveAccount()">💾 Save</button></div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal">
+    <div class="modal-header"><h3>📄 New Invoice</h3><button class="close-btn" onclick="closeModal('invoiceModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Client Name *</label><input type="text" id="inv-client" placeholder="Client / organization"></div>
+        <div class="form-group"><label>Client Type</label><select id="inv-client-type"><option>NGO</option><option>Government</option><option>Local</option><option>Private</option></select></div>
+        <div class="form-group"><label>Invoice Date *</label><input type="date" id="inv-date"></div>
+        <div class="form-group"><label>Due Date</label><input type="date" id="inv-due"></div>
+        <div class="form-group"><label>Status</label><select id="inv-status"><option>Pending</option><option>Paid</option><option>Overdue</option><option>Draft</option></select></div>
+        <div class="form-group"><label>Client TIN</label><input type="text" id="inv-tin" placeholder="Client TIN"></div>
+        <div class="form-group"><label>Apply VAT (15%)</label><select id="inv-vat"><option value="1">Yes</option><option value="0">No</option></select></div>
+      </div>
+      <div style="margin-top:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="font-size:13px;">📦 Items</strong><button class="btn btn-secondary btn-sm" onclick="addInvoiceItem()">+ Add Item</button></div>
+        <table class="items-table"><thead><tr><th>#</th><th>Item *</th><th>Description</th><th>Qty *</th><th>Unit Price *</th><th>Subtotal</th><th></th></tr></thead><tbody id="invItemsBody"></tbody></table>
+        <div class="vat-row"><span>Subtotal:</span><strong id="invSubtotal">ETB 0.00</strong></div>
+        <div class="vat-row" id="invVatRow"><span>VAT (15%):</span><strong id="invVatAmt">ETB 0.00</strong></div>
+        <div class="item-total">Grand Total: <span id="invGrandTotal" style="color:#00bcd4;">ETB 0.00</span></div>
+      </div>
+      <div class="form-grid" style="margin-top:14px;"><div class="form-group full"><label>Notes / Payment Terms</label><textarea id="inv-notes" placeholder="Payment terms, instructions..."></textarea></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('invoiceModal')">Cancel</button><button class="btn btn-primary" onclick="saveInvoice()">💾 Save Invoice</button></div>
+  </div>
+</div>
+
+<!-- INVOICE VIEW MODAL -->
+<div class="modal-overlay" id="invoiceViewModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header"><h3>📄 Invoice</h3><div style="display:flex;gap:8px;"><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print</button><button class="close-btn" onclick="closeModal('invoiceViewModal')">×</button></div></div>
+    <div class="modal-body" id="invoiceViewBody"></div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><h3>👤 Invite Staff</h3><button class="close-btn" onclick="closeModal('addUserModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Full Name *</label><input type="text" id="newUserName" placeholder="Staff full name"></div>
+        <div class="form-group full"><label>Email *</label><input type="text" id="newUserEmail" placeholder="staff@email.com"></div>
+        <div class="form-group full"><label>Role</label><select id="newUserRole"><option value="manager">Finance Manager</option><option value="entry">Data Entry</option><option value="viewer">Viewer (Read Only)</option></select></div>
+        <div class="form-group full"><label>Temporary Password *</label><input type="text" id="newUserPass" placeholder="Min 6 characters"></div>
+      </div>
+      <p style="font-size:11px;color:#8a9bbd;margin-top:10px;">The user will be able to sign in with this email and password. Share credentials securely.</p>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button><button class="btn btn-primary" onclick="createStaffUser()">➕ Create Account</button></div>
+  </div>
+</div>
+
+<script>
+// ===================== FIREBASE INIT =====================
+const firebaseConfig = {
+  apiKey: "AIzaSyApecarsxLh5uSwtqIIlFUHuGoVbS4XySY",
+  authDomain: "efdafinance.firebaseapp.com",
+  projectId: "efdafinance",
+  storageBucket: "efdafinance.firebasestorage.app",
+  messagingSenderId: "882449237225",
+  appId: "1:882449237225:web:823412a2de9a2bc7ce1c78",
+  measurementId: "G-HD93RESC1L"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+// ===================== AUTH =====================
+let currentUser = null;
+let currentUserProfile = null;
+
+auth.onAuthStateChanged(async user => {
+  if(user){
+    currentUser = user;
+    await loadUserProfile(user);
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('app').classList.add('show');
+    renderDashboard();
+    showPage('dashboard');
+  } else {
+    currentUser = null;
+    document.getElementById('loginPage').style.display='flex';
+    document.getElementById('app').classList.remove('show');
+  }
+});
+
+async function signIn(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display='none';
+  if(!email||!pass){ errEl.textContent='Enter email and password.'; errEl.style.display='block'; return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    errEl.textContent = e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential' ? 'Invalid email or password.' : e.message;
+    errEl.style.display='block';
+  }
+}
+
+async function signInGoogle(){
+  try { await auth.signInWithPopup(googleProvider); }
+  catch(e){ showToast(e.message,'error'); }
+}
+
+async function signOut(){ await auth.signOut(); }
+
+async function loadUserProfile(user){
+  const doc = await db.collection('users').doc(user.uid).get();
+  if(doc.exists){
+    currentUserProfile = doc.data();
+  } else {
+    // First user becomes admin
+    const count = (await db.collection('users').get()).size;
+    currentUserProfile = { name: user.displayName||user.email.split('@')[0], email: user.email, role: count===0?'admin':'viewer', uid: user.uid };
+    await db.collection('users').doc(user.uid).set({...currentUserProfile, lastActive: firebase.firestore.FieldValue.serverTimestamp()});
+  }
+  // Update last active
+  db.collection('users').doc(user.uid).update({lastActive: firebase.firestore.FieldValue.serverTimestamp()});
+  updateSidebar();
+  // Show Users menu for admins
+  if(currentUserProfile.role==='admin') document.getElementById('navUsers').style.display='flex';
+}
+
+function updateSidebar(){
+  const p = currentUserProfile;
+  if(!p) return;
+  const initials = p.name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  document.getElementById('sidebarAvatar').textContent=initials;
+  document.getElementById('sidebarName').textContent=p.name;
+  document.getElementById('sidebarRole').textContent=({admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'})[p.role]||p.role;
+}
+
+// ===================== UTILS =====================
+const fmt = n => 'ETB '+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today = () => new Date().toISOString().split('T')[0];
+const nowTime = () => new Date().toTimeString().slice(0,5);
+const monthStr = (d=new Date()) => d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+let saleCounter = 1;
+const genSaleId = () => 'SL-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+String(saleCounter++).padStart(4,'0');
+
+function getVatRate(){ return (parseFloat(document.getElementById('set-vat')?.value)||15)/100; }
+function getSettings(){ return JSON.parse(localStorage.getItem('efda_settings')||'{}'); }
+
+function showToast(msg, type='success'){
+  const el = document.createElement('div');
+  el.className='toast-item '+(type==='error'?'error':type==='success'?'success':'');
+  el.textContent=msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('show'); }));
+
+// ===================== NAVIGATION =====================
+const pageInfo = {
+  dashboard:{title:'Financial Dashboard',sub:`Welcome back — Overview for ${monthStr()}`},
+  sales:{title:'Sales Recording',sub:'Record and manage sales transactions'},
+  expenses:{title:'Expense Management',sub:'Record and track business expenses'},
+  analytics:{title:'Analytics & Reports',sub:'Financial insights and performance'},
+  accounts:{title:'Bank Accounts',sub:'Manage your bank accounts and track balances'},
+  transfers:{title:'Transfers',sub:'Move funds between accounts'},
+  invoices:{title:'Invoices',sub:'Create and manage client invoices'},
+  users:{title:'Staff Management',sub:'Manage user accounts and roles'},
+  settings:{title:'Settings',sub:'Company and system configuration'}
+};
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  const pg = document.getElementById('page-'+p);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(x=>{ if((x.getAttribute('onclick')||'').includes("'"+p+"'")) x.classList.add('active'); });
+  const info = pageInfo[p]||{title:p,sub:''};
+  document.getElementById('pageTitle').textContent=info.title;
+  document.getElementById('pageSubtitle').innerHTML=info.sub;
+  const acts = document.getElementById('topbarActions');
+  const btnMap = {
+    dashboard:'<button class="btn btn-secondary btn-sm" onclick="showPage(\'expenses\');openExpenseModal()">+ Expense</button><button class="btn btn-primary btn-sm" onclick="showPage(\'sales\');openSaleModal()">+ Sale</button>',
+    sales:'<button class="btn btn-primary btn-sm" onclick="openSaleModal()">+ New Sale</button>',
+    expenses:'<button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ New Expense</button>',
+    accounts:'<button class="btn btn-primary btn-sm" onclick="openAccountModal()">+ Add Account</button>',
+    invoices:'<button class="btn btn-primary btn-sm" onclick="openInvoiceModal()">+ New Invoice</button>'
+  };
+  acts.innerHTML = btnMap[p]||'';
+  if(p==='dashboard') renderDashboard();
+  if(p==='sales') renderSalesPage();
+  if(p==='expenses') renderExpensePage();
+  if(p==='analytics') renderAnalytics();
+  if(p==='accounts') renderAccountsTable();
+  if(p==='transfers') renderTransfersPage();
+  if(p==='invoices') renderInvoicesPage();
+  if(p==='users') renderUsersTable();
+  if(p==='settings') loadSettingsPage();
+}
+
+// ===================== ACCOUNTS =====================
+let editingAccountId = null;
+function openAccountModal(id=null){
+  editingAccountId=id;
+  document.getElementById('accountModalTitle').textContent = id?'✏️ Edit Account':'🏦 Add Account';
+  document.getElementById('accSaveBtn').textContent = id?'💾 Update':'💾 Save';
+  if(!id){
+    ['acc-bank','acc-number','acc-holder','acc-desc'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('acc-balance').value='0.00';
+    document.getElementById('acc-type').value='Checking';
+    document.getElementById('acc-status').value='Active';
+  } else {
+    db.collection('accounts').doc(id).get().then(d=>{
+      if(!d.exists) return;
+      const a=d.data();
+      document.getElementById('acc-bank').value=a.bank||'';
+      document.getElementById('acc-number').value=a.number||'';
+      document.getElementById('acc-holder').value=a.holder||'';
+      document.getElementById('acc-type').value=a.type||'Checking';
+      document.getElementById('acc-balance').value=a.balance||0;
+      document.getElementById('acc-status').value=a.status||'Active';
+      document.getElementById('acc-desc').value=a.desc||'';
+    });
+  }
+  openModal('accountModal');
+}
+
+async function saveAccount(){
+  const bank=document.getElementById('acc-bank').value.trim();
+  const number=document.getElementById('acc-number').value.trim();
+  const balance=parseFloat(document.getElementById('acc-balance').value)||0;
+  if(!bank||!number){ showToast('Bank name and account number required','error'); return; }
+  const data = { bank, number, holder:document.getElementById('acc-holder').value, type:document.getElementById('acc-type').value, balance, status:document.getElementById('acc-status').value, desc:document.getElementById('acc-desc').value, updatedAt:firebase.firestore.FieldValue.serverTimestamp() };
+  try {
+    if(editingAccountId){ await db.collection('accounts').doc(editingAccountId).update(data); showToast('Account updated!'); }
+    else { await db.collection('accounts').add({...data, createdAt:firebase.firestore.FieldValue.serverTimestamp(), createdBy:currentUser.uid}); showToast('Account saved!'); }
+    closeModal('accountModal'); renderAccountsTable(); populateAccountDropdowns();
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+async function renderAccountsTable(){
+  const snap = await db.collection('accounts').orderBy('createdAt','desc').get();
+  const accounts = snap.docs.map(d=>({id:d.id,...d.data()}));
+  const active = accounts.filter(a=>a.status==='Active');
+  document.getElementById('acc-count').textContent=active.length;
+  document.getElementById('acc-total').textContent=fmt(active.reduce((s,a)=>s+Number(a.balance),0));
+  const tbody=document.getElementById('accountsTable');
+  tbody.innerHTML=accounts.length?accounts.map(a=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:30px;height:30px;border-radius:50%;background:#5c6bc0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;">${(a.bank||'').slice(0,2).toUpperCase()}</div>${a.bank}</div></td>
+    <td>${a.number}</td><td>${a.holder||'—'}</td><td>${a.type}</td>
+    <td class="amount-positive">${fmt(a.balance)}</td>
+    <td><span class="badge ${a.status==='Active'?'badge-success':'badge-danger'}">${a.status}</span></td>
+    <td><div class="action-btns"><button class="icon-btn" onclick="openAccountModal('${a.id}')">✏️</button><button class="icon-btn del" onclick="deleteDoc('accounts','${a.id}',renderAccountsTable)">🗑</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:30px;color:#8a9bbd;">No accounts yet</td></tr>';
+}
+
+async function populateAccountDropdowns(){
+  const snap = await db.collection('accounts').where('status','==','Active').get();
+  const accounts = snap.docs.map(d=>({id:d.id,...d.data()}));
+  ['sale-account','exp-account','tr-from','tr-to'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    const hasEmpty = ['sale-account','exp-account'].includes(id);
+    el.innerHTML=(hasEmpty?'<option value="">'+(id==='sale-account'?'Not deposited':'Select account...')+'</option>':'')+accounts.map(a=>`<option value="${a.id}">${a.bank} — ${a.number}</option>`).join('');
+  });
+}
+
+// ===================== SALES =====================
+let saleItems=[];
+function openSaleModal(){
+  saleItems=[{name:'',desc:'',qty:1,price:0}];
+  document.getElementById('sale-customer').value='';
+  document.getElementById('sale-tin').value='';
+  document.getElementById('sale-date').value=today();
+  document.getElementById('sale-time').value=nowTime();
+  document.getElementById('sale-payment').value='Cash';
+  document.getElementById('sale-status').value='Paid';
+  document.getElementById('sale-recorded').value=currentUserProfile?.name||'';
+  document.getElementById('saleIdDisplay').textContent='ID: '+genSaleId();
+  document.getElementById('sale-vat').value='1';
+  populateAccountDropdowns();
+  renderSaleItems(); openModal('saleModal');
+}
+
+function addSaleItem(){ saleItems.push({name:'',desc:'',qty:1,price:0}); renderSaleItems(); }
+function removeSaleItem(i){ saleItems.splice(i,1); if(!saleItems.length) saleItems.push({name:'',desc:'',qty:1,price:0}); renderSaleItems(); }
+function renderSaleItems(){
+  document.getElementById('saleItemsBody').innerHTML=saleItems.map((it,i)=>`<tr class="item-row">
+    <td>${i+1}</td>
+    <td><input value="${it.name}" placeholder="Item name" onchange="saleItems[${i}].name=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:100%;"></td>
+    <td><input value="${it.desc}" placeholder="Optional" onchange="saleItems[${i}].desc=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:100%;"></td>
+    <td><input type="number" value="${it.qty}" min="1" oninput="saleItems[${i}].qty=+this.value;updateSaleTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:65px;"></td>
+    <td><input type="number" value="${it.price}" min="0" step="0.01" oninput="saleItems[${i}].price=+this.value;updateSaleTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:90px;"></td>
+    <td style="color:#00bcd4;font-weight:600;white-space:nowrap;">ETB ${((it.qty||0)*(it.price||0)).toFixed(2)}</td>
+    <td><button onclick="removeSaleItem(${i})" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:18px;">×</button></td>
+  </tr>`).join('');
+  updateSaleTotal();
+}
+function updateSaleTotal(){
+  const sub=saleItems.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  const applyVat=document.getElementById('sale-vat')?.value==='1';
+  const vat=applyVat?sub*getVatRate():0;
+  document.getElementById('saleSubtotal').textContent='ETB '+sub.toFixed(2);
+  document.getElementById('saleVatAmt').textContent='ETB '+vat.toFixed(2);
+  document.getElementById('saleGrandTotal').textContent='ETB '+(sub+vat).toFixed(2);
+}
+document.getElementById('sale-vat').addEventListener('change',updateSaleTotal);
+
+async function saveSale(){
+  const customer=document.getElementById('sale-customer').value.trim();
+  if(!customer){ showToast('Customer name required','error'); return; }
+  const validItems=saleItems.filter(i=>i.name.trim()&&i.qty>0);
+  if(!validItems.length){ showToast('Add at least one valid item','error'); return; }
+  const sub=validItems.reduce((s,i)=>s+i.qty*i.price,0);
+  const applyVat=document.getElementById('sale-vat').value==='1';
+  const vat=applyVat?sub*getVatRate():0;
+  const total=sub+vat;
+  const btn=document.getElementById('saveSaleBtn'); btn.disabled=true; btn.textContent='Saving...';
+  try {
+    await db.collection('sales').add({
+      customer, tin:document.getElementById('sale-tin').value,
+      date:document.getElementById('sale-date').value, time:document.getElementById('sale-time').value,
+      payment:document.getElementById('sale-payment').value, status:document.getElementById('sale-status').value,
+      accountId:document.getElementById('sale-account').value, recorded:document.getElementById('sale-recorded').value,
+      items:validItems, subtotal:sub, vat, total, vatApplied:applyVat,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(), createdBy:currentUser.uid
+    });
+    closeModal('saleModal'); renderSalesPage(); showToast('Sale saved!','success');
+  } catch(e){ showToast(e.message,'error'); }
+  btn.disabled=false; btn.textContent='💾 Save Sale';
+}
+
+async function renderSalesPage(){
+  const snap=await db.collection('sales').orderBy('createdAt','desc').get();
+  const sales=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const now=new Date(); const todayStr=today(); const thisMonth=now.toISOString().slice(0,7);
+  const weekAgo=new Date(now-7*86400000).toISOString().split('T')[0];
+  const ts=sales.filter(s=>s.date===todayStr);
+  document.getElementById('sales-today-count').textContent=ts.length;
+  document.getElementById('sales-today-rev').textContent=fmt(ts.reduce((s,x)=>s+Number(x.total),0));
+  document.getElementById('sales-week').textContent=sales.filter(s=>s.date>=weekAgo).length;
+  document.getElementById('sales-month').textContent=sales.filter(s=>s.date&&s.date.startsWith(thisMonth)).length;
+  renderSalesTable(sales);
+}
+
+function renderSalesTable(salesData=null){
+  const doRender = async(sales) => {
+    const search=(document.getElementById('salesSearch')||{value:''}).value.toLowerCase();
+    const statusF=(document.getElementById('salesStatusFilter')||{value:''}).value;
+    const filtered=sales.filter(s=>(!search||s.customer.toLowerCase().includes(search))&&(!statusF||s.status===statusF));
+    const tbody=document.getElementById('salesTable');
+    tbody.innerHTML=filtered.length?filtered.map(s=>`<tr>
+      <td style="color:#00bcd4;font-weight:600;font-size:11px;">${s.id?.slice(0,16)||'—'}</td>
+      <td>${s.date}</td><td>${s.customer}</td><td>${(s.items||[]).length}</td>
+      <td>${fmt(s.subtotal||s.total)}</td>
+      <td style="color:#ff9800;">${s.vatApplied?fmt(s.vat||0):'—'}</td>
+      <td class="amount-positive">${fmt(s.total)}</td>
+      <td>${s.payment}</td>
+      <td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Pending'?'badge-warning':'badge-info'}">${s.status}</span></td>
+      <td><div class="action-btns"><button class="icon-btn" onclick="viewSale('${s.id}')">👁</button><button class="icon-btn del" onclick="deleteDoc('sales','${s.id}',renderSalesPage)">🗑</button></div></td>
+    </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;color:#8a9bbd;">No sales yet</td></tr>';
+  };
+  if(salesData) doRender(salesData);
+  else db.collection('sales').orderBy('createdAt','desc').get().then(snap=>doRender(snap.docs.map(d=>({id:d.id,...d.data()}))));
+}
+
+async function viewSale(id){
+  const d=await db.collection('sales').doc(id).get(); if(!d.exists) return;
+  const s=d.data();
+  const accounts=await db.collection('accounts').get();
+  const accMap={}; accounts.forEach(a=>accMap[a.id]=a.data());
+  const acc=accMap[s.accountId];
+  document.getElementById('saleDetailBody').innerHTML=`
+    <div class="detail-grid">
+      <div class="detail-item"><label>Date & Time</label><p>${s.date} at ${s.time}</p></div>
+      <div class="detail-item"><label>Customer</label><p>${s.customer}</p></div>
+      <div class="detail-item"><label>TIN</label><p>${s.tin||'—'}</p></div>
+      <div class="detail-item"><label>Payment</label><p>${s.payment}</p></div>
+      <div class="detail-item"><label>Status</label><p><span class="badge ${s.status==='Paid'?'badge-success':'badge-warning'}">${s.status}</span></p></div>
+      <div class="detail-item"><label>Deposited To</label><p>${acc?acc.bank+' ('+acc.number+')':'Not deposited'}</p></div>
+      <div class="detail-item"><label>Recorded By</label><p>${s.recorded||'—'}</p></div>
+    </div>
+    <table class="items-table" style="margin-top:10px;"><thead><tr><th>#</th><th>Item</th><th>Desc</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+    <tbody>${(s.items||[]).map((it,i)=>`<tr class="item-row"><td>${i+1}</td><td>${it.name}</td><td>${it.desc||'—'}</td><td>${it.qty}</td><td>ETB ${Number(it.price).toFixed(2)}</td><td style="color:#00bcd4;font-weight:600;">ETB ${(it.qty*it.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
+    <div class="vat-row" style="margin-top:8px;"><span>Subtotal:</span><strong>${fmt(s.subtotal||s.total)}</strong></div>
+    ${s.vatApplied?`<div class="vat-row"><span>VAT (15%):</span><strong style="color:#ff9800;">${fmt(s.vat)}</strong></div>`:''}
+    <div class="item-total">Grand Total: ETB ${Number(s.total).toFixed(2)}</div>`;
+  openModal('saleDetailModal');
+}
+
+// ===================== EXPENSES =====================
+function openExpenseModal(){
+  ['exp-reason','exp-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('exp-amount').value='';
+  document.getElementById('exp-date').value=today();
+  document.getElementById('exp-requested').value=currentUserProfile?.name||'';
+  document.getElementById('exp-approved').value='';
+  populateAccountDropdowns(); openModal('expenseModal');
+}
+
+async function saveExpense(){
+  const reason=document.getElementById('exp-reason').value.trim();
+  const amount=parseFloat(document.getElementById('exp-amount').value);
+  if(!reason||isNaN(amount)||amount<=0){ showToast('Reason and valid amount required','error'); return; }
+  try {
+    await db.collection('expenses').add({
+      reason, type:document.getElementById('exp-type').value, amount,
+      date:document.getElementById('exp-date').value,
+      accountId:document.getElementById('exp-account').value,
+      status:document.getElementById('exp-status').value,
+      requested:document.getElementById('exp-requested').value,
+      approved:document.getElementById('exp-approved').value,
+      notes:document.getElementById('exp-notes').value,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(), createdBy:currentUser.uid
+    });
+    closeModal('expenseModal'); renderExpensePage(); showToast('Expense saved!','success');
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+async function renderExpensePage(){
+  const snap=await db.collection('expenses').orderBy('createdAt','desc').get();
+  const expenses=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const todayStr=today(); const thisMonth=new Date().toISOString().slice(0,7);
+  const te=expenses.filter(e=>e.date===todayStr);
+  const me=expenses.filter(e=>e.date&&e.date.startsWith(thisMonth));
+  const pe=expenses.filter(e=>e.status==='Pending');
+  document.getElementById('exp-today').textContent=fmt(te.reduce((s,x)=>s+Number(x.amount),0));
+  document.getElementById('exp-today-label').textContent=`Today (${te.length})`;
+  document.getElementById('exp-month').textContent=fmt(me.reduce((s,x)=>s+Number(x.amount),0));
+  document.getElementById('exp-month-label').textContent=`This Month (${me.length})`;
+  document.getElementById('exp-pending').textContent=fmt(pe.reduce((s,x)=>s+Number(x.amount),0));
+  document.getElementById('exp-pending-label').textContent=`Pending (${pe.length})`;
+  const accsSnap=await db.collection('accounts').get();
+  const accMap={}; accsSnap.forEach(a=>accMap[a.id]=a.data());
+  const tbody=document.getElementById('expenseTable');
+  tbody.innerHTML=expenses.length?expenses.map(e=>{
+    const acc=accMap[e.accountId];
+    return `<tr><td>${e.date}</td><td>${e.reason}</td><td>${e.type}</td>
+      <td class="amount-negative">-${fmt(e.amount)}</td>
+      <td>${acc?acc.bank+' '+acc.number:'—'}</td>
+      <td>${e.requested||'—'}</td><td>${e.approved||'—'}</td>
+      <td><span class="badge ${e.status==='Completed'?'badge-success':e.status==='Pending'?'badge-warning':'badge-info'}">${e.status}</span></td>
+      <td><button class="icon-btn del" onclick="deleteDoc('expenses','${e.id}',renderExpensePage)">🗑</button></td></tr>`;
+  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:30px;color:#8a9bbd;">No expenses yet</td></tr>';
+}
+
+// ===================== DASHBOARD =====================
+let cashFlowChart, expPieChart;
+async function renderDashboard(){
+  const [salesSnap,expSnap,accSnap] = await Promise.all([
+    db.collection('sales').get(),
+    db.collection('expenses').get(),
+    db.collection('accounts').get()
+  ]);
+  const sales=salesSnap.docs.map(d=>d.data());
+  const expenses=expSnap.docs.map(d=>d.data());
+  const accounts=accSnap.docs.map(d=>d.data()).filter(a=>a.status==='Active');
+  const now=new Date(); const thisMonth=now.toISOString().slice(0,7);
+  const totalBal=accounts.reduce((s,a)=>s+Number(a.balance),0);
+  const monthSales=sales.filter(s=>s.date&&s.date.startsWith(thisMonth)).reduce((s,x)=>s+Number(x.total),0);
+  const monthExp=expenses.filter(e=>e.date&&e.date.startsWith(thisMonth)).reduce((s,x)=>s+Number(x.amount),0);
+  document.getElementById('dash-balance').textContent=fmt(totalBal);
+  document.getElementById('dash-income').textContent=fmt(monthSales);
+  document.getElementById('dash-expenses').textContent=fmt(monthExp);
+  document.getElementById('dash-savings').textContent=fmt(monthSales-monthExp);
+  document.getElementById('liveBannerRight').textContent=`📅 ${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} | 🏦 ${accounts.length} Active Account${accounts.length!==1?'s':''}`;
+  // Cash flow
+  const months=[]; const incD=[]; const expD=[];
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const m=d.toISOString().slice(0,7);
+    months.push(d.toLocaleDateString('en-US',{month:'short',year:'2-digit'}));
+    incD.push(sales.filter(s=>s.date&&s.date.startsWith(m)).reduce((s,x)=>s+Number(x.total),0));
+    expD.push(expenses.filter(e=>e.date&&e.date.startsWith(m)).reduce((s,x)=>s+Number(x.amount),0));
+  }
+  if(cashFlowChart) cashFlowChart.destroy();
+  cashFlowChart=new Chart(document.getElementById('cashFlowChart'),{type:'line',data:{labels:months,datasets:[{label:'Income',data:incD,borderColor:'#00bcd4',backgroundColor:'rgba(0,188,212,.1)',tension:.4,fill:true,pointRadius:3},{label:'Expenses',data:expD,borderColor:'#f44336',backgroundColor:'rgba(244,67,54,.05)',tension:.4,fill:true,pointRadius:3}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'ETB '+(v/1000).toFixed(0)+'K'}}}}});
+  // Expense pie
+  const expCats={};
+  expenses.filter(e=>e.date&&e.date.startsWith(thisMonth)).forEach(e=>expCats[e.type]=(expCats[e.type]||0)+Number(e.amount));
+  if(expPieChart) expPieChart.destroy();
+  const noExp=Object.keys(expCats).length===0;
+  document.getElementById('noExpenseMsg').style.display=noExp?'block':'none';
+  if(!noExp) expPieChart=new Chart(document.getElementById('expensePieChart'),{type:'doughnut',data:{labels:Object.keys(expCats),datasets:[{data:Object.values(expCats),backgroundColor:['#00bcd4','#f44336','#ff9800','#4caf50','#9c27b0','#2196f3','#ff5722','#795548','#607d8b']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+  // Recent tx
+  const allTx=[...sales.map(s=>({date:s.date,desc:`Sale to ${s.customer}`,type:'Sale',amount:s.total,status:s.status,pos:true})),...expenses.map(e=>({date:e.date,desc:`${e.type}: ${e.reason}`,type:'Expense',amount:e.amount,status:e.status,pos:false}))].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,10);
+  document.getElementById('recentTxTable').innerHTML=allTx.length?allTx.map(t=>`<tr><td>${t.date}</td><td>${t.desc}</td><td><span class="badge ${t.pos?'badge-success':'badge-danger'}">${t.type}</span></td><td class="${t.pos?'amount-positive':'amount-negative'}">${t.pos?'+':'-'}${fmt(t.amount)}</td><td><span class="badge badge-info">${t.status}</span></td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:30px;color:#8a9bbd;">No transactions yet</td></tr>';
+}
+
+// ===================== TRANSFERS =====================
+async function renderTransfersPage(){
+  populateAccountDropdowns();
+  document.getElementById('tr-date').value=today();
+  const snap=await db.collection('transfers').orderBy('createdAt','desc').get();
+  const transfers=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const accsSnap=await db.collection('accounts').get(); const accMap={};
+  accsSnap.forEach(a=>accMap[a.id]=a.data());
+  document.getElementById('tr-count').textContent=transfers.length;
+  document.getElementById('tr-total').textContent=fmt(transfers.reduce((s,t)=>s+Number(t.amount),0));
+  const tbody=document.getElementById('transferTable');
+  tbody.innerHTML=transfers.length?transfers.map(t=>{
+    const fr=accMap[t.from]; const to=accMap[t.to];
+    return `<tr><td>${t.date}</td><td>${fr?fr.bank+' '+fr.number:t.from||'—'}</td><td>${to?to.bank+' '+to.number:t.to||'—'}</td><td class="amount-positive">${fmt(t.amount)}</td><td>${t.by||'—'}</td><td>${t.desc||'—'}</td></tr>`;
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:30px;color:#8a9bbd;">No transfers yet</td></tr>';
+}
+
+async function saveTransfer(){
+  const from=document.getElementById('tr-from').value, to=document.getElementById('tr-to').value;
+  const amount=parseFloat(document.getElementById('tr-amount').value), date=document.getElementById('tr-date').value;
+  if(!from||!to||isNaN(amount)||amount<=0){ showToast('Fill all required fields','error'); return; }
+  if(from===to){ showToast('Cannot transfer to same account','error'); return; }
+  const fromDoc=await db.collection('accounts').doc(from).get();
+  if(!fromDoc.exists||Number(fromDoc.data().balance)<amount){ showToast('Insufficient balance','error'); return; }
+  const batch=db.batch();
+  batch.update(db.collection('accounts').doc(from),{balance:firebase.firestore.FieldValue.increment(-amount)});
+  batch.update(db.collection('accounts').doc(to),{balance:firebase.firestore.FieldValue.increment(amount)});
+  batch.set(db.collection('transfers').doc(),{from,to,amount,date,desc:document.getElementById('tr-desc').value,by:currentUserProfile?.name||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  await batch.commit();
+  showToast('Transfer complete!','success'); renderTransfersPage();
+}
+
+// ===================== INVOICES =====================
+let invItems=[];
+function openInvoiceModal(){
+  invItems=[{name:'',desc:'',qty:1,price:0}];
+  document.getElementById('inv-client').value='';
+  document.getElementById('inv-date').value=today();
+  document.getElementById('inv-due').value='';
+  document.getElementById('inv-tin').value='';
+  document.getElementById('inv-notes').value='';
+  document.getElementById('inv-vat').value='1';
+  renderInvItems(); openModal('invoiceModal');
+}
+function addInvoiceItem(){ invItems.push({name:'',desc:'',qty:1,price:0}); renderInvItems(); }
+function removeInvItem(i){ invItems.splice(i,1); if(!invItems.length) invItems.push({name:'',desc:'',qty:1,price:0}); renderInvItems(); }
+function renderInvItems(){
+  document.getElementById('invItemsBody').innerHTML=invItems.map((it,i)=>`<tr class="item-row">
+    <td>${i+1}</td>
+    <td><input value="${it.name}" placeholder="Item" onchange="invItems[${i}].name=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:100%;"></td>
+    <td><input value="${it.desc}" placeholder="Optional" onchange="invItems[${i}].desc=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:100%;"></td>
+    <td><input type="number" value="${it.qty}" min="1" oninput="invItems[${i}].qty=+this.value;updateInvTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:65px;"></td>
+    <td><input type="number" value="${it.price}" min="0" step="0.01" oninput="invItems[${i}].price=+this.value;updateInvTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:90px;"></td>
+    <td style="color:#00bcd4;font-weight:600;white-space:nowrap;">ETB ${((it.qty||0)*(it.price||0)).toFixed(2)}</td>
+    <td><button onclick="removeInvItem(${i})" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:18px;">×</button></td>
+  </tr>`).join('');
+  updateInvTotal();
+}
+function updateInvTotal(){
+  const sub=invItems.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  const applyVat=document.getElementById('inv-vat')?.value==='1';
+  const vat=applyVat?sub*getVatRate():0;
+  document.getElementById('invSubtotal').textContent='ETB '+sub.toFixed(2);
+  document.getElementById('invVatAmt').textContent='ETB '+vat.toFixed(2);
+  document.getElementById('invGrandTotal').textContent='ETB '+(sub+vat).toFixed(2);
+}
+document.getElementById('inv-vat').addEventListener('change',updateInvTotal);
+
+async function saveInvoice(){
+  const client=document.getElementById('inv-client').value.trim();
+  if(!client){ showToast('Client name required','error'); return; }
+  const validItems=invItems.filter(i=>i.name.trim()&&i.qty>0);
+  if(!validItems.length){ showToast('Add at least one item','error'); return; }
+  const sub=validItems.reduce((s,i)=>s+i.qty*i.price,0);
+  const applyVat=document.getElementById('inv-vat').value==='1';
+  const vat=applyVat?sub*getVatRate():0;
+  const snap=await db.collection('invoices').get();
+  const num=snap.size+1;
+  await db.collection('invoices').add({
+    invNumber:'INV-'+String(num).padStart(4,'0'), client, clientType:document.getElementById('inv-client-type').value,
+    date:document.getElementById('inv-date').value, due:document.getElementById('inv-due').value,
+    status:document.getElementById('inv-status').value, tin:document.getElementById('inv-tin').value,
+    items:validItems, subtotal:sub, vat, total:sub+vat, vatApplied:applyVat,
+    notes:document.getElementById('inv-notes').value,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(), createdBy:currentUser.uid
+  });
+  closeModal('invoiceModal'); renderInvoicesPage(); showToast('Invoice created!','success');
+}
+
+async function renderInvoicesPage(){
+  const snap=await db.collection('invoices').orderBy('createdAt','desc').get();
+  const invoices=snap.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('inv-total').textContent=invoices.length;
+  document.getElementById('inv-paid').textContent=invoices.filter(i=>i.status==='Paid').length;
+  document.getElementById('inv-pending').textContent=invoices.filter(i=>i.status==='Pending').length;
+  document.getElementById('inv-overdue').textContent=invoices.filter(i=>i.status==='Overdue').length;
+  const tbody=document.getElementById('invoicesTable');
+  tbody.innerHTML=invoices.length?invoices.map(inv=>`<tr>
+    <td style="color:#00bcd4;font-weight:700;">${inv.invNumber}</td>
+    <td>${inv.date}</td><td>${inv.client}</td>
+    <td><span class="badge badge-info">${inv.clientType}</span></td>
+    <td>${fmt(inv.subtotal||inv.total)}</td>
+    <td style="color:#ff9800;">${inv.vatApplied?fmt(inv.vat||0):'—'}</td>
+    <td class="amount-positive">${fmt(inv.total)}</td>
+    <td>${inv.due||'—'}</td>
+    <td><span class="badge ${inv.status==='Paid'?'badge-success':inv.status==='Overdue'?'badge-danger':inv.status==='Draft'?'badge-gray':'badge-warning'}">${inv.status}</span></td>
+    <td><div class="action-btns"><button class="icon-btn" onclick="viewInvoice('${inv.id}')">👁</button><button class="icon-btn del" onclick="deleteDoc('invoices','${inv.id}',renderInvoicesPage)">🗑</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;color:#8a9bbd;">No invoices yet</td></tr>';
+}
+
+async function viewInvoice(id){
+  const d=await db.collection('invoices').doc(id).get(); if(!d.exists) return;
+  const inv=d.data(); const sett=getSettings();
+  document.getElementById('invoiceViewBody').innerHTML=`
+    <div class="invoice-preview">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+        <div><div class="inv-title">💧 ${sett.company||'EFDA General Trading PLC'}</div>${sett.tin?`<p style="font-size:12px;color:#666;margin-top:3px;">TIN: ${sett.tin}</p>`:''}${sett.address?`<p style="font-size:12px;color:#666;">${sett.address}</p>`:''}${sett.phone?`<p style="font-size:12px;color:#666;">${sett.phone}</p>`:''}</div>
+        <div style="text-align:right;"><div style="font-size:22px;font-weight:700;color:#1a2332;">INVOICE</div><div style="color:#00bcd4;font-weight:700;font-size:16px;">${inv.invNumber}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px;">
+        <div style="background:#f8f9fb;padding:12px;border-radius:6px;"><strong>Bill To:</strong><br>${inv.client}<br><span style="color:#8a9bbd;">${inv.clientType}</span>${inv.tin?`<br>TIN: ${inv.tin}`:''}</div>
+        <div style="text-align:right;"><strong>Invoice Date:</strong> ${inv.date}<br><strong>Due Date:</strong> ${inv.due||'—'}<br><strong>Status:</strong> <span class="badge ${inv.status==='Paid'?'badge-success':inv.status==='Overdue'?'badge-danger':'badge-warning'}">${inv.status}</span></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:#1a2332;color:#fff;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit Price</th><th style="padding:10px;text-align:right;">Subtotal</th></tr></thead>
+      <tbody>${(inv.items||[]).map(it=>`<tr style="border-bottom:1px solid #f0f2f5;"><td style="padding:10px;">${it.name}${it.desc?`<br><small style="color:#8a9bbd;">${it.desc}</small>`:''}</td><td style="padding:10px;text-align:center;">${it.qty}</td><td style="padding:10px;text-align:right;">ETB ${Number(it.price).toFixed(2)}</td><td style="padding:10px;text-align:right;color:#00bcd4;font-weight:600;">ETB ${(it.qty*it.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
+      <div style="margin-top:12px;text-align:right;font-size:13px;"><div style="margin-bottom:4px;"><span style="color:#8a9bbd;">Subtotal: </span>${fmt(inv.subtotal||inv.total)}</div>${inv.vatApplied?`<div style="margin-bottom:4px;"><span style="color:#8a9bbd;">VAT (15%): </span><span style="color:#ff9800;">${fmt(inv.vat)}</span></div>`:''}<div style="font-size:18px;font-weight:700;margin-top:6px;padding-top:6px;border-top:2px solid #f0f2f5;">Grand Total: ETB ${Number(inv.total).toFixed(2)}</div></div>
+      ${inv.notes?`<div style="margin-top:14px;padding:10px;background:#f8f9fb;border-radius:6px;font-size:12px;"><strong>Notes:</strong> ${inv.notes}</div>`:''}
+    </div>`;
+  openModal('invoiceViewModal');
+}
+
+// ===================== ANALYTICS =====================
+let barChart, payPie, custChart, expBrkChart;
+async function renderAnalytics(){
+  const [salesSnap,expSnap,invSnap]=await Promise.all([db.collection('sales').get(),db.collection('expenses').get(),db.collection('invoices').get()]);
+  const sales=salesSnap.docs.map(d=>d.data());
+  const expenses=expSnap.docs.map(d=>d.data());
+  document.getElementById('ana-total-sales').textContent=fmt(sales.reduce((s,x)=>s+Number(x.total),0));
+  document.getElementById('ana-total-exp').textContent=fmt(expenses.reduce((s,x)=>s+Number(x.amount),0));
+  document.getElementById('ana-profit').textContent=fmt(sales.reduce((s,x)=>s+Number(x.total),0)-expenses.reduce((s,x)=>s+Number(x.amount),0));
+  document.getElementById('ana-invoices').textContent=invSnap.size;
+  const now=new Date(); const months=[]; const sD=[]; const eD=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const m=d.toISOString().slice(0,7);
+    months.push(d.toLocaleDateString('en-US',{month:'short'}));
+    sD.push(sales.filter(s=>s.date&&s.date.startsWith(m)).reduce((s,x)=>s+Number(x.total),0));
+    eD.push(expenses.filter(e=>e.date&&e.date.startsWith(m)).reduce((s,x)=>s+Number(x.amount),0));
+  }
+  if(barChart) barChart.destroy();
+  barChart=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:months,datasets:[{label:'Sales',data:sD,backgroundColor:'rgba(0,188,212,.7)'},{label:'Expenses',data:eD,backgroundColor:'rgba(244,67,54,.7)'}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}});
+  const payM={}; sales.forEach(s=>payM[s.payment]=(payM[s.payment]||0)+Number(s.total));
+  if(payPie) payPie.destroy();
+  if(Object.keys(payM).length) payPie=new Chart(document.getElementById('paymentPieChart'),{type:'pie',data:{labels:Object.keys(payM),datasets:[{data:Object.values(payM),backgroundColor:['#00bcd4','#4caf50','#ff9800','#9c27b0']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+  const custs={}; sales.forEach(s=>custs[s.customer]=(custs[s.customer]||0)+Number(s.total));
+  const topC=Object.entries(custs).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(custChart) custChart.destroy();
+  if(topC.length) custChart=new Chart(document.getElementById('customerChart'),{type:'bar',data:{labels:topC.map(c=>c[0]),datasets:[{label:'Revenue',data:topC.map(c=>c[1]),backgroundColor:'rgba(76,175,80,.7)'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  const expT={}; expenses.forEach(e=>expT[e.type]=(expT[e.type]||0)+Number(e.amount));
+  if(expBrkChart) expBrkChart.destroy();
+  if(Object.keys(expT).length) expBrkChart=new Chart(document.getElementById('expBreakChart'),{type:'doughnut',data:{labels:Object.keys(expT),datasets:[{data:Object.values(expT),backgroundColor:['#f44336','#ff9800','#9c27b0','#2196f3','#4caf50','#ff5722','#607d8b','#795548','#00bcd4']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+}
+
+// ===================== USERS =====================
+async function renderUsersTable(){
+  const snap=await db.collection('users').get();
+  const users=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const roleLabels={admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'};
+  const roleClass={admin:'role-admin',manager:'role-manager',entry:'role-manager',viewer:'role-viewer'};
+  document.getElementById('usersTable').innerHTML=users.map(u=>`<tr>
+    <td>${u.name||'—'}</td><td>${u.email}</td>
+    <td><span class="role-badge ${roleClass[u.role]||'role-viewer'}">${roleLabels[u.role]||u.role}</span></td>
+    <td>${u.lastActive?.toDate?u.lastActive.toDate().toLocaleDateString('en-US'):'—'}</td>
+    <td>${u.uid!==currentUser.uid?`<button class="icon-btn del" onclick="deleteDoc('users','${u.id}',renderUsersTable)">🗑</button>`:'(you)'}</td>
+  </tr>`).join('');
+}
+
+async function createStaffUser(){
+  const name=document.getElementById('newUserName').value.trim();
+  const email=document.getElementById('newUserEmail').value.trim();
+  const pass=document.getElementById('newUserPass').value;
+  const role=document.getElementById('newUserRole').value;
+  if(!name||!email||!pass||pass.length<6){ showToast('Fill all fields (password min 6 chars)','error'); return; }
+  try {
+    const cred=await auth.createUserWithEmailAndPassword(email,pass);
+    await db.collection('users').doc(cred.user.uid).set({name,email,role,uid:cred.user.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    // Sign back in as original user
+    closeModal('addUserModal'); renderUsersTable(); showToast(`Account created for ${name}!`,'success');
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+// ===================== SETTINGS =====================
+function loadSettingsPage(){
+  const s=getSettings();
+  document.getElementById('set-company').value=s.company||'EFDA General Trading PLC';
+  document.getElementById('set-tin').value=s.tin||'';
+  document.getElementById('set-address').value=s.address||'';
+  document.getElementById('set-phone').value=s.phone||'';
+  document.getElementById('set-name').value=currentUserProfile?.name||'';
+  document.getElementById('set-role').value=({admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'})[currentUserProfile?.role]||'—';
+  document.getElementById('set-vat').value=s.vat||15;
+  document.getElementById('set-vatreg').value=s.vatreg||'';
+}
+
+async function saveSettings(){
+  const sett={company:document.getElementById('set-company').value,tin:document.getElementById('set-tin').value,address:document.getElementById('set-address').value,phone:document.getElementById('set-phone').value,vat:document.getElementById('set-vat').value,vatreg:document.getElementById('set-vatreg').value};
+  localStorage.setItem('efda_settings',JSON.stringify(sett));
+  const name=document.getElementById('set-name').value.trim();
+  if(name&&name!==currentUserProfile?.name){
+    await db.collection('users').doc(currentUser.uid).update({name});
+    currentUserProfile.name=name; updateSidebar();
+  }
+  showToast('Settings saved!','success');
+}
+
+// ===================== DELETE HELPER =====================
+async function deleteDoc(col,id,refreshFn){
+  if(!confirm('Delete this record? This cannot be undone.')) return;
+  await db.collection(col).doc(id).delete();
+  showToast('Deleted','success');
+  if(refreshFn) refreshFn();
+}
+
+// ===================== EXCEL EXPORT =====================
+async function exportExcel(){
+  const [salesSnap,expSnap]=await Promise.all([db.collection('sales').orderBy('createdAt','desc').get(),db.collection('expenses').orderBy('createdAt','desc').get()]);
+  const sales=salesSnap.docs.map(d=>{const x=d.data();return{Date:x.date,Customer:x.customer,Items:(x.items||[]).length,Subtotal:x.subtotal||x.total,VAT:x.vat||0,Total:x.total,Payment:x.payment,Status:x.status};});
+  const expenses=expSnap.docs.map(d=>{const x=d.data();return{Date:x.date,Reason:x.reason,Type:x.type,Amount:x.amount,Status:x.status,RequestedBy:x.requested,ApprovedBy:x.approved};});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sales),'Sales');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(expenses),'Expenses');
+  XLSX.writeFile(wb,`EFDAFinance_Export_${today()}.xlsx`);
+  showToast('Excel file downloaded!','success');
+}
+
+async function exportSalesExcel(){
+  const snap=await db.collection('sales').orderBy('createdAt','desc').get();
+  const data=snap.docs.map(d=>{const x=d.data();return{Date:x.date,Customer:x.customer,TIN:x.tin,Items:(x.items||[]).length,Subtotal:x.subtotal||x.total,'VAT (15%)':x.vat||0,Total:x.total,Payment:x.payment,Status:x.status,'Recorded By':x.recorded};});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Sales');
+  XLSX.writeFile(wb,`EFDA_Sales_${today()}.xlsx`);
+  showToast('Sales exported!','success');
+}
+
+async function exportExpensesExcel(){
+  const snap=await db.collection('expenses').orderBy('createdAt','desc').get();
+  const data=snap.docs.map(d=>{const x=d.data();return{Date:x.date,Reason:x.reason,Type:x.type,Amount:x.amount,Status:x.status,'Requested By':x.requested,'Approved By':x.approved,Notes:x.notes};});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Expenses');
+  XLSX.writeFile(wb,`EFDA_Expenses_${today()}.xlsx`);
+  showToast('Expenses exported!','success');
+}
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('tr-date').value=today();
+});
+</script>
+</body>
+</html>
