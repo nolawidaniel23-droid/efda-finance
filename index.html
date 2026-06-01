@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1a2332">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,7 +26,10 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;}
 /* LOGIN */
 #loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a2332 0%,#0d1b2a 100%);}
 .login-card{background:#fff;border-radius:16px;padding:40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
-.login-logo{text-align:center;margin-bottom:28px;font-size:28px;font-weight:800;color:#1a2332;}
+.login-logo{text-align:center;margin-bottom:28px;font-size:28px;font-weight:800;color:#1a2332;display:flex;align-items:center;justify-content:center;gap:8px;}
+.logo-mark{flex-shrink:0;}
+.chart-card h3,.card-header h3{display:flex;align-items:center;gap:8px;}
+.chart-card h3 svg,.card-header h3 svg,.btn svg.ico{flex-shrink:0;}
 .login-logo span{color:#00bcd4;}
 .login-subtitle{text-align:center;color:#8a9bbd;font-size:13px;margin-bottom:28px;}
 .login-form .form-group{margin-bottom:16px;}
@@ -47,7 +51,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;}
 
 /* SIDEBAR */
 #sidebar{width:200px;min-width:200px;background:#1a2332;color:#fff;display:flex;flex-direction:column;height:100vh;overflow-y:auto;}
-.logo{padding:18px 16px;font-size:19px;font-weight:700;border-bottom:1px solid #2a3547;}
+.logo{padding:18px 16px;font-size:19px;font-weight:700;border-bottom:1px solid #2a3547;display:flex;align-items:center;gap:6px;}
 .logo span{color:#00bcd4;}
 .nav-section{padding:12px 16px 4px;font-size:10px;color:#6b7a99;text-transform:uppercase;letter-spacing:1px;}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:#8a9bbd;font-size:13px;transition:all .2s;border-left:3px solid transparent;}
@@ -210,7 +214,7 @@ canvas{max-height:220px;}
 <!-- LOGIN PAGE -->
 <div id="loginPage">
   <div class="login-card">
-    <div class="login-logo">◈ <span>EFDA</span>Finance</div>
+    <div class="login-logo"><svg class="logo-mark" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L4 12l8 10 8-10z" fill="#00bcd4"/></svg><span>EFDA</span>Finance</div>
     <p class="login-subtitle">Sign in to manage EFDA General Trading PLC finances</p>
     <div id="loginError" class="login-error"></div>
     <div class="login-form">
@@ -231,7 +235,7 @@ canvas{max-height:220px;}
 <div id="app">
   <!-- SIDEBAR -->
   <nav id="sidebar">
-    <div class="logo">◈ <span>EFDA</span>Finance</div>
+    <div class="logo"><svg class="logo-mark" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L4 12l8 10 8-10z" fill="#00bcd4"/></svg><span>EFDA</span>Finance</div>
     <div class="nav-section">Main Menu</div>
     <div class="nav-item active" onclick="showPage('dashboard')"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard</div>
     <div class="nav-item" onclick="showPage('sales')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Sales</div>
@@ -246,7 +250,7 @@ canvas{max-height:220px;}
     <div class="nav-item" onclick="showPage('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Settings</div>
     <div class="user-area" onclick="showPage('settings')">
       <div class="user-avatar" id="sidebarAvatar">?</div>
-      <div class="user-info"><strong id="sidebarName">Loading...</strong><span id="sidebarRole">—</span></div>
+      <div class="user-info"><strong id="sidebarName">Loading...</strong><span id="sidebarRole">-</span></div>
     </div>
   </nav>
 
@@ -263,7 +267,7 @@ canvas{max-height:220px;}
 
       <!-- DASHBOARD -->
       <div id="page-dashboard" class="page active">
-        <div class="live-banner"><span><span class="live-dot"></span> Live — Real-time financial data</span><span id="liveBannerRight"></span></div>
+        <div class="live-banner"><span><span class="live-dot"></span> Live - Real-time financial data</span><span id="liveBannerRight"></span></div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="stat-value" id="dash-balance">ETB 0</div><div class="stat-label">Total Bank Balance</div></div>
           <div class="stat-card green"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div><div class="stat-value" id="dash-income">ETB 0</div><div class="stat-label">Monthly Income</div></div>
@@ -271,10 +275,10 @@ canvas{max-height:220px;}
           <div class="stat-card orange"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="1.5"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/></svg></div><div class="stat-value" id="dash-savings">ETB 0</div><div class="stat-label">Net Savings</div></div>
         </div>
         <div class="chart-grid">
-          <div class="chart-card"><h3>Cash Flow (12 Months)</h3><canvas id="cashFlowChart"></canvas></div>
-          <div class="chart-card"><h3>Expense Categories</h3><canvas id="expensePieChart"></canvas><p id="noExpenseMsg" style="text-align:center;color:#8a9bbd;font-size:12px;margin-top:10px;display:none;">No expenses this month</p></div>
+          <div class="chart-card"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Cash Flow (12 Months)</h3><canvas id="cashFlowChart"></canvas></div>
+          <div class="chart-card"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5" aria-hidden="true"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>Expense Categories</h3><canvas id="expensePieChart"></canvas><p id="noExpenseMsg" style="text-align:center;color:#8a9bbd;font-size:12px;margin-top:10px;display:none;">No expenses this month</p></div>
         </div>
-        <div class="card"><div class="card-header"><h3>Recent Transactions</h3><button class="btn btn-secondary btn-sm" onclick="exportExcel()">Export Excel</button></div><div style="padding:0;"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recentTxTable"><tr><td colspan="5" class="loading"><div class="spinner"></div><br>Loading...</td></tr></tbody></table></div></div>
+        <div class="card"><div class="card-header"><h3>Recent Transactions</h3><button class="btn btn-secondary btn-sm" onclick="exportExcel()"><svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>Export Excel</button></div><div style="padding:0;"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recentTxTable"><tr><td colspan="5" class="loading"><div class="spinner"></div><br>Loading...</td></tr></tbody></table></div></div>
       </div>
 
       <!-- SALES -->
@@ -680,14 +684,14 @@ document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click
 function toggleMobileMenu(){ document.getElementById('sidebar').classList.toggle('mobile-open'); }
 
 const pageInfo = {
-  dashboard:{title:'Financial Dashboard',sub:`Welcome back — Overview for ${monthStr()}`},
+  dashboard:{title:'Financial Dashboard',sub:`Welcome back - Overview for ${monthStr()}`},
   sales:{title:'Sales Recording',sub:'Record and manage sales transactions'},
   expenses:{title:'Expense Management',sub:'Record and track business expenses'},
   analytics:{title:'Analytics & Reports',sub:'Financial insights and performance'},
   accounts:{title:'Bank Accounts',sub:'Manage your bank accounts and track balances'},
   transfers:{title:'Transfers',sub:'Move funds between accounts'},
   invoices:{title:'Invoices',sub:'Create and manage client invoices'},
-  inventory:{title:'Inventory & Products',sub:'71 SKUs — Mark II, Afridev, UPVC, Submersible & more'},
+  inventory:{title:'Inventory & Products',sub:'71 SKUs - Mark II, Afridev, UPVC, Submersible & more'},
   users:{title:'Staff Management',sub:'Manage user accounts and roles'},
   settings:{title:'Settings',sub:'Company and system configuration'}
 };
@@ -771,7 +775,7 @@ async function renderAccountsTable(){
   const tbody=document.getElementById('accountsTable');
   tbody.innerHTML=accounts.length?accounts.map(a=>`<tr>
     <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:30px;height:30px;border-radius:50%;background:#5c6bc0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;">${(a.bank||'').slice(0,2).toUpperCase()}</div>${a.bank}</div></td>
-    <td>${a.number}</td><td>${a.holder||'—'}</td><td>${a.type}</td>
+    <td>${a.number}</td><td>${a.holder||' - '}</td><td>${a.type}</td>
     <td class="amount-positive">${fmt(a.balance)}</td>
     <td><span class="badge ${a.status==='Active'?'badge-success':'badge-danger'}">${a.status}</span></td>
     <td><div class="action-btns"><button class="icon-btn" onclick="openAccountModal('${a.id}')">Edit</button><button class="icon-btn del" onclick="deleteDoc('accounts','${a.id}',renderAccountsTable)">Del</button></div></td>
@@ -784,7 +788,7 @@ async function populateAccountDropdowns(){
   ['sale-account','exp-account','tr-from','tr-to'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     const hasEmpty = ['sale-account','exp-account'].includes(id);
-    el.innerHTML=(hasEmpty?'<option value="">'+(id==='sale-account'?'Not deposited':'Select account...')+'</option>':'')+accounts.map(a=>`<option value="${a.id}">${a.bank} — ${a.number}</option>`).join('');
+    el.innerHTML=(hasEmpty?'<option value="">'+(id==='sale-account'?'Not deposited':'Select account...')+'</option>':'')+accounts.map(a=>`<option value="${a.id}">${a.bank} - ${a.number}</option>`).join('');
   });
 }
 
@@ -861,10 +865,10 @@ function renderSalesTable(salesData=null){
     const filtered=sales.filter(s=>(!search||s.customer.toLowerCase().includes(search))&&(!statusF||s.status===statusF));
     const tbody=document.getElementById('salesTable');
     tbody.innerHTML=filtered.length?filtered.map(s=>`<tr>
-      <td style="color:#00bcd4;font-weight:600;font-size:11px;">${s.id?.slice(0,16)||'—'}</td>
+      <td style="color:#00bcd4;font-weight:600;font-size:11px;">${s.id?.slice(0,16)||' - '}</td>
       <td>${s.date}</td><td>${s.customer}</td><td>${(s.items||[]).length}</td>
       <td>${fmt(s.subtotal||s.total)}</td>
-      <td style="color:#ff9800;">${s.vatApplied?fmt(s.vat||0):'—'}</td>
+      <td style="color:#ff9800;">${s.vatApplied?fmt(s.vat||0):' - '}</td>
       <td class="amount-positive">${fmt(s.total)}</td>
       <td>${s.payment}</td>
       <td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Pending'?'badge-warning':'badge-info'}">${s.status}</span></td>
@@ -885,14 +889,14 @@ async function viewSale(id){
     <div class="detail-grid">
       <div class="detail-item"><label>Date & Time</label><p>${s.date} at ${s.time}</p></div>
       <div class="detail-item"><label>Customer</label><p>${s.customer}</p></div>
-      <div class="detail-item"><label>TIN</label><p>${s.tin||'—'}</p></div>
+      <div class="detail-item"><label>TIN</label><p>${s.tin||' - '}</p></div>
       <div class="detail-item"><label>Payment</label><p>${s.payment}</p></div>
       <div class="detail-item"><label>Status</label><p><span class="badge ${s.status==='Paid'?'badge-success':'badge-warning'}">${s.status}</span></p></div>
       <div class="detail-item"><label>Deposited To</label><p>${acc?acc.bank+' ('+acc.number+')':'Not deposited'}</p></div>
-      <div class="detail-item"><label>Recorded By</label><p>${s.recorded||'—'}</p></div>
+      <div class="detail-item"><label>Recorded By</label><p>${s.recorded||' - '}</p></div>
     </div>
     <table class="items-table" style="margin-top:10px;"><thead><tr><th>#</th><th>Item</th><th>SKU</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
-    <tbody>${(s.items||[]).map((it,i)=>`<tr class="item-row"><td>${i+1}</td><td>${it.name}</td><td>${it.sku||'—'}</td><td>${it.qty}</td><td>ETB ${Number(it.price).toFixed(2)}</td><td style="color:#00bcd4;font-weight:600;">ETB ${(it.qty*it.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
+    <tbody>${(s.items||[]).map((it,i)=>`<tr class="item-row"><td>${i+1}</td><td>${it.name}</td><td>${it.sku||' - '}</td><td>${it.qty}</td><td>ETB ${Number(it.price).toFixed(2)}</td><td style="color:#00bcd4;font-weight:600;">ETB ${(it.qty*it.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
     <div class="vat-row" style="margin-top:8px;"><span>Subtotal:</span><strong>${fmt(s.subtotal||s.total)}</strong></div>
     ${s.vatApplied?`<div class="vat-row"><span>VAT (15%):</span><strong style="color:#ff9800;">${fmt(s.vat)}</strong></div>`:''}
     <div class="item-total">Grand Total: ETB ${Number(s.total).toFixed(2)}</div>`;
@@ -947,8 +951,8 @@ async function renderExpensePage(){
     const acc=accMap[e.accountId];
     return `<tr><td>${e.date}</td><td>${e.reason}</td><td>${e.type}</td>
       <td class="amount-negative">-${fmt(e.amount)}</td>
-      <td>${acc?acc.bank+' '+acc.number:'—'}</td>
-      <td>${e.requested||'—'}</td><td>${e.approved||'—'}</td>
+      <td>${acc?acc.bank+' '+acc.number:' - '}</td>
+      <td>${e.requested||' - '}</td><td>${e.approved||' - '}</td>
       <td><span class="badge ${e.status==='Completed'?'badge-success':e.status==='Pending'?'badge-warning':'badge-info'}">${e.status}</span></td>
       <td><button class="icon-btn del" onclick="deleteDoc('expenses','${e.id}',renderExpensePage)">Del</button></td></tr>`;
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:30px;color:#8a9bbd;">No expenses yet</td></tr>';
@@ -1005,7 +1009,7 @@ async function renderTransfersPage(){
   const tbody=document.getElementById('transferTable');
   tbody.innerHTML=transfers.length?transfers.map(t=>{
     const fr=accMap[t.from]; const to=accMap[t.to];
-    return `<tr><td>${t.date}</td><td>${fr?fr.bank+' '+fr.number:t.from||'—'}</td><td>${to?to.bank+' '+to.number:t.to||'—'}</td><td class="amount-positive">${fmt(t.amount)}</td><td>${t.by||'—'}</td><td>${t.desc||'—'}</td></tr>`;
+    return `<tr><td>${t.date}</td><td>${fr?fr.bank+' '+fr.number:t.from||' - '}</td><td>${to?to.bank+' '+to.number:t.to||' - '}</td><td class="amount-positive">${fmt(t.amount)}</td><td>${t.by||' - '}</td><td>${t.desc||' - '}</td></tr>`;
   }).join(''):'<tr><td colspan="6" style="text-align:center;padding:30px;color:#8a9bbd;">No transfers yet</td></tr>';
 }
 
@@ -1082,9 +1086,9 @@ async function renderInvoicesPage(){
     <td>${inv.date}</td><td>${inv.client}</td>
     <td><span class="badge badge-info">${inv.clientType}</span></td>
     <td>${fmt(inv.subtotal||inv.total)}</td>
-    <td style="color:#ff9800;">${inv.vatApplied?fmt(inv.vat||0):'—'}</td>
+    <td style="color:#ff9800;">${inv.vatApplied?fmt(inv.vat||0):' - '}</td>
     <td class="amount-positive">${fmt(inv.total)}</td>
-    <td>${inv.due||'—'}</td>
+    <td>${inv.due||' - '}</td>
     <td><span class="badge ${inv.status==='Paid'?'badge-success':inv.status==='Overdue'?'badge-danger':inv.status==='Draft'?'badge-gray':'badge-warning'}">${inv.status}</span></td>
     <td><div class="action-btns"><button class="icon-btn" onclick="viewInvoice('${inv.id}')">View</button><button class="icon-btn del" onclick="deleteDoc('invoices','${inv.id}',renderInvoicesPage)">Del</button></div></td>
   </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;color:#8a9bbd;">No invoices yet</td></tr>';
@@ -1101,7 +1105,7 @@ async function viewInvoice(id){
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px;">
         <div style="background:#f8f9fb;padding:12px;border-radius:6px;"><strong>Bill To:</strong><br>${inv.client}<br><span style="color:#8a9bbd;">${inv.clientType}</span>${inv.tin?`<br>TIN: ${inv.tin}`:''}</div>
-        <div style="text-align:right;"><strong>Invoice Date:</strong> ${inv.date}<br><strong>Due Date:</strong> ${inv.due||'—'}<br><strong>Status:</strong> <span class="badge ${inv.status==='Paid'?'badge-success':inv.status==='Overdue'?'badge-danger':'badge-warning'}">${inv.status}</span></div>
+        <div style="text-align:right;"><strong>Invoice Date:</strong> ${inv.date}<br><strong>Due Date:</strong> ${inv.due||' - '}<br><strong>Status:</strong> <span class="badge ${inv.status==='Paid'?'badge-success':inv.status==='Overdue'?'badge-danger':'badge-warning'}">${inv.status}</span></div>
       </div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:#1a2332;color:#fff;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit Price</th><th style="padding:10px;text-align:right;">Subtotal</th></tr></thead>
       <tbody>${(inv.items||[]).map(it=>`<tr style="border-bottom:1px solid #f0f2f5;"><td style="padding:10px;">${it.name}${it.sku?`<br><small style="color:#8a9bbd;">${it.sku}</small>`:''}</td><td style="padding:10px;text-align:center;">${it.qty}</td><td style="padding:10px;text-align:right;">ETB ${Number(it.price).toFixed(2)}</td><td style="padding:10px;text-align:right;color:#00bcd4;font-weight:600;">ETB ${(it.qty*it.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
@@ -1148,9 +1152,9 @@ async function renderUsersTable(){
   const roleLabels={admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'};
   const roleClass={admin:'role-admin',manager:'role-manager',entry:'role-manager',viewer:'role-viewer'};
   document.getElementById('usersTable').innerHTML=users.map(u=>`<tr>
-    <td>${u.name||'—'}</td><td>${u.email}</td>
+    <td>${u.name||' - '}</td><td>${u.email}</td>
     <td><span class="role-badge ${roleClass[u.role]||'role-viewer'}">${roleLabels[u.role]||u.role}</span></td>
-    <td>${u.lastActive?.toDate?u.lastActive.toDate().toLocaleDateString('en-US'):'—'}</td>
+    <td>${u.lastActive?.toDate?u.lastActive.toDate().toLocaleDateString('en-US'):' - '}</td>
     <td>${u.uid!==currentUser.uid?`<button class="icon-btn del" onclick="deleteDoc('users','${u.id}',renderUsersTable)">Del</button>`:'(you)'}</td>
   </tr>`).join('');
 }
@@ -1181,7 +1185,7 @@ function loadSettingsPage(){
   document.getElementById('set-address').value=s.address||'';
   document.getElementById('set-phone').value=s.phone||'';
   document.getElementById('set-name').value=currentUserProfile?.name||'';
-  document.getElementById('set-role').value=({admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'})[currentUserProfile?.role]||'—';
+  document.getElementById('set-role').value=({admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'})[currentUserProfile?.role]||' - ';
   document.getElementById('set-vat').value=s.vat||15;
   document.getElementById('set-vatreg').value=s.vatreg||'';
 }
@@ -1258,19 +1262,19 @@ const PRODUCTS_CATALOG = [
   {sku:'AFR-FS-003',name:'Afridev Handle',type:'FULL SET',category:'Afridev',stock:144,minStock:30,unit:'Pcs',price:0},
   {sku:'AFR-FS-004',name:'Afridev Cylinder',type:'FULL SET',category:'Afridev',stock:144,minStock:30,unit:'Pcs',price:0},
   {sku:'AFR-FS-005',name:'Afridev Solvent Cement',type:'FULL SET',category:'Afridev',stock:144,minStock:30,unit:'Pcs',price:0},
-  {sku:'AFR-SC-001',name:'Rod — Imported',type:'SCALED',category:'Afridev',stock:2391,minStock:100,unit:'Pcs',price:0},
-  {sku:'AFR-SC-002',name:'Rod — Local (Mild Steel)',type:'SCALED',category:'Afridev',stock:0,minStock:100,unit:'Pcs',price:0},
-  {sku:'AFR-SC-003',name:'Rod — Local (Stainless Steel)',type:'SCALED',category:'Afridev',stock:1057,minStock:100,unit:'Pcs',price:0},
-  {sku:'AFR-SC-004',name:'PVC — Local (Ethiopia)',type:'SCALED',category:'Afridev',stock:437,minStock:100,unit:'Pcs',price:0},
-  {sku:'AFR-SC-005',name:'PVC — Imported',type:'SCALED',category:'Afridev',stock:2295,minStock:100,unit:'Pcs',price:0},
+  {sku:'AFR-SC-001',name:'Rod - Imported',type:'SCALED',category:'Afridev',stock:2391,minStock:100,unit:'Pcs',price:0},
+  {sku:'AFR-SC-002',name:'Rod - Local (Mild Steel)',type:'SCALED',category:'Afridev',stock:0,minStock:100,unit:'Pcs',price:0},
+  {sku:'AFR-SC-003',name:'Rod - Local (Stainless Steel)',type:'SCALED',category:'Afridev',stock:1057,minStock:100,unit:'Pcs',price:0},
+  {sku:'AFR-SC-004',name:'PVC - Local (Ethiopia)',type:'SCALED',category:'Afridev',stock:437,minStock:100,unit:'Pcs',price:0},
+  {sku:'AFR-SC-005',name:'PVC - Imported',type:'SCALED',category:'Afridev',stock:2295,minStock:100,unit:'Pcs',price:0},
   {sku:'AFR-SP-001',name:'Cylinder (spare)',type:'SPARE',category:'Afridev',stock:342,minStock:50,unit:'Pcs',price:0},
   {sku:'AFR-SP-002',name:'Plunger Valve',type:'SPARE',category:'Afridev',stock:523,minStock:100,unit:'Pcs',price:0},
   {sku:'AFR-SP-003',name:'Foot Valve with Hook',type:'SPARE',category:'Afridev',stock:2319,minStock:200,unit:'Pcs',price:0},
   {sku:'AFR-SP-004',name:'Foot Valve without Hook',type:'SPARE',category:'Afridev',stock:994,minStock:200,unit:'Pcs',price:0},
   {sku:'AFR-SP-005',name:'Plunger Rod with Valve (Usable)',type:'SPARE',category:'Afridev',stock:286,minStock:50,unit:'Pcs',price:0},
   {sku:'AFR-SP-005D',name:'Plunger Rod with Valve (Damaged)',type:'SPARE',category:'Afridev',stock:6,minStock:0,unit:'Pcs',price:0},
-  {sku:'AFR-SP-006I',name:'PVC Socket — Imported',type:'SPARE',category:'Afridev',stock:751,minStock:100,unit:'Pcs',price:0},
-  {sku:'AFR-SP-006L',name:'PVC Socket — Local',type:'SPARE',category:'Afridev',stock:82,minStock:50,unit:'Pcs',price:0},
+  {sku:'AFR-SP-006I',name:'PVC Socket - Imported',type:'SPARE',category:'Afridev',stock:751,minStock:100,unit:'Pcs',price:0},
+  {sku:'AFR-SP-006L',name:'PVC Socket - Local',type:'SPARE',category:'Afridev',stock:82,minStock:50,unit:'Pcs',price:0},
   {sku:'AFR-SP-007',name:'Top Sleeve',type:'SPARE',category:'Afridev',stock:30,minStock:20,unit:'Pcs',price:0},
   {sku:'AFR-SP-008',name:'Fulcrum Pin',type:'SPARE',category:'Afridev',stock:649,minStock:200,unit:'Pcs',price:0},
   {sku:'AFR-SP-009',name:'Rope',type:'SPARE',category:'Afridev',stock:119,minStock:30,unit:'Pcs',price:0},
@@ -1370,7 +1374,7 @@ async function renderInventoryPage(){
     <td style="font-weight:700;${p.stock<=0?'color:#c62828':p.minStock>0&&p.stock<=p.minStock?'color:#f57c00':'color:#2e7d32'}">${(p.stock||0).toLocaleString()}</td>
     <td style="color:#8a9bbd;">${p.minStock||0}</td>
     <td>${stockBadge(p.stock,p.minStock)}</td>
-    <td>${p.price?fmt(p.price):'<span style="color:#8a9bbd;">—</span>'}</td>
+    <td>${p.price?fmt(p.price):'<span style="color:#8a9bbd;"> - </span>'}</td>
     <td><div class="action-btns"><button class="icon-btn" onclick="openEditProductModal('${p.id||p.sku}')">Edit</button><button class="icon-btn" onclick="adjustStock('${p.id||p.sku}','${p.name.replace(/'/g,"\\'")}',${p.stock||0})">Stock</button></div></td>
   </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:30px;color:#8a9bbd;">No products found</td></tr>';
 }
@@ -1434,13 +1438,13 @@ function buildProductOptions(selectedSku=''){
     if(!cats[p.category]) cats[p.category]=[];
     cats[p.category].push(p);
   });
-  let opts='<option value="">— Select product —</option>';
+  let opts='<option value=""> -  Select product  - </option>';
   Object.entries(cats).forEach(([cat,items])=>{
     opts+=`<optgroup label="${cat}">`;
     items.forEach(p=>{
       const status=getStockStatus(p.stock,p.minStock);
       const suffix=status==='OUT OF STOCK'?' OUT':status==='LOW STOCK'?` (${p.stock} left)`:`(${(p.stock||0).toLocaleString()})`;
-      opts+=`<option value="${p.sku}" data-name="${p.name}" data-price="${p.price||0}" ${selectedSku===p.sku?'selected':''}>${p.sku} — ${p.name} ${suffix}</option>`;
+      opts+=`<option value="${p.sku}" data-name="${p.name}" data-price="${p.price||0}" ${selectedSku===p.sku?'selected':''}>${p.sku} - ${p.name} ${suffix}</option>`;
     });
     opts+='</optgroup>';
   });
@@ -1456,7 +1460,7 @@ function renderSaleItems(){
       </select>
       <input type="text" value="${it.name}" placeholder="Or type custom..." oninput="saleItems[${i}].name=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:5px;font-size:11px;width:100%;margin-top:3px;color:#8a9bbd;">
     </td>
-    <td style="font-family:monospace;font-size:11px;color:#00bcd4;min-width:90px;">${it.sku||'—'}</td>
+    <td style="font-family:monospace;font-size:11px;color:#00bcd4;min-width:90px;">${it.sku||' - '}</td>
     <td><input type="number" value="${it.qty}" min="1" oninput="saleItems[${i}].qty=+this.value;updateSaleTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:65px;"></td>
     <td><input type="number" value="${it.price}" min="0" step="0.01" oninput="saleItems[${i}].price=+this.value;updateSaleTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:90px;"></td>
     <td style="color:#00bcd4;font-weight:600;white-space:nowrap;">ETB ${((it.qty||0)*(it.price||0)).toFixed(2)}</td>
@@ -1483,7 +1487,7 @@ function renderInvItems(){
       </select>
       <input type="text" value="${it.name}" placeholder="Or type custom..." oninput="invItems[${i}].name=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:5px;font-size:11px;width:100%;margin-top:3px;color:#8a9bbd;">
     </td>
-    <td style="font-family:monospace;font-size:11px;color:#00bcd4;min-width:90px;">${it.sku||'—'}</td>
+    <td style="font-family:monospace;font-size:11px;color:#00bcd4;min-width:90px;">${it.sku||' - '}</td>
     <td><input type="number" value="${it.qty}" min="1" oninput="invItems[${i}].qty=+this.value;updateInvTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:65px;"></td>
     <td><input type="number" value="${it.price}" min="0" step="0.01" oninput="invItems[${i}].price=+this.value;updateInvTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:90px;"></td>
     <td style="color:#00bcd4;font-weight:600;white-space:nowrap;">ETB ${((it.qty||0)*(it.price||0)).toFixed(2)}</td>
@@ -1504,6 +1508,13 @@ function onInvProductSelect(i,sel){
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('tr-date').value=today();
 });
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/efda-finance/sw.js').then(reg=>{
+    reg.update();
+    if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+  }).catch(()=>{});
+}
 </script>
 </body>
 </html>
