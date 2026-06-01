@@ -1,4 +1,4 @@
-const CACHE = 'efda-v3';
+const CACHE = 'efda-v4';
 const ASSETS = [
   '/efda-finance/',
   '/efda-finance/index.html',
