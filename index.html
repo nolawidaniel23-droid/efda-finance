@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="EFDA Finance">
 <link rel="manifest" href="/efda-finance/manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231a2332'/%3E%3Cpath d='M50 15C50 15 22 42 22 60a28 28 0 0056 0C78 42 50 15 50 15z' fill='%2300bcd4'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231a2332'/><text x='50' y='68' text-anchor='middle' font-size='52' font-family='serif' fill='%2300bcd4'>E</text></svg>">
 <title>EFDA Finance</title>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -199,13 +199,28 @@ canvas{max-height:220px;}
 .loading{text-align:center;padding:40px;color:#8a9bbd;}
 .spinner{display:inline-block;width:32px;height:32px;border:3px solid #f0f2f5;border-top-color:#00bcd4;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
 /* TOAST */
 #toast{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
 .toast-item{background:#1a2332;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.2);border-left:4px solid #00bcd4;animation:slideIn .3s ease;}
 .toast-item.error{border-left-color:#f44336;}
 .toast-item.success{border-left-color:#4caf50;}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+/* ===== NEW FEATURES CSS ===== */
+.budget-bar{height:8px;background:#f0f2f5;border-radius:4px;overflow:hidden;margin-top:5px;}
+.budget-fill{height:100%;border-radius:4px;transition:width .3s;}
+.budget-fill.ok{background:#4caf50;} .budget-fill.warn{background:#ff9800;} .budget-fill.over{background:#f44336;}
+.budget-label{display:flex;justify-content:space-between;font-size:11px;color:#8a9bbd;margin-top:2px;}
+.project-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px;}
+.proj-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid #00bcd4;}
+.proj-card.active{border-left-color:#4caf50;} .proj-card.completed{border-left-color:#607d8b;} .proj-card.on-hold{border-left-color:#ff9800;}
+.proj-name{font-size:14px;font-weight:700;color:#1a2332;margin-bottom:2px;}
+.proj-client{font-size:12px;color:#8a9bbd;}
+.proj-meta{display:flex;gap:6px;margin-top:10px;}
+.proj-meta-item{flex:1;text-align:center;padding:5px 3px;background:#f8f9fb;border-radius:6px;}
+.proj-meta-item .val{font-size:12px;font-weight:700;color:#1a2332;}
+.proj-meta-item .lbl{font-size:9px;color:#8a9bbd;margin-top:1px;}
+.badge-purple{background:#f3e5f5;color:#7b1fa2;}
+.curr-note{font-size:11px;color:#ff9800;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -247,6 +262,14 @@ canvas{max-height:220px;}
     <div class="nav-item" onclick="showPage('invoices')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Invoices</div>
     <div class="nav-item" onclick="showPage('inventory')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Inventory</div>
     <div class="nav-item" onclick="showPage('users')" id="navUsers" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Users</div>
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" onclick="showPage('budget')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Budget</div>
+    <div class="nav-item" onclick="showPage('vendors')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Vendors</div>
+    <div class="nav-item" onclick="showPage('purchaseorders')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Purchase Orders</div>
+    <div class="nav-item" onclick="showPage('projects')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Projects</div>
+    <div class="nav-item" onclick="showPage('payroll')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Payroll</div>
+    <div class="nav-item" onclick="showPage('approvals')" id="navApprovals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Approvals</div>
+    <div class="nav-item" onclick="showPage('auditlog')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Audit Log</div>
     <div class="nav-item" onclick="showPage('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Settings</div>
     <div class="user-area" onclick="showPage('settings')">
       <div class="user-avatar" id="sidebarAvatar">?</div>
@@ -421,11 +444,91 @@ canvas{max-height:220px;}
               <div class="form-group"><label>VAT Registration Number</label><input type="text" id="set-vatreg" placeholder="VAT Reg. No."></div>
             </div>
           </div>
+          <div class="settings-section"><h4>Approval Workflow</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>Auto-Approval Threshold (ETB)</label><input type="number" id="set-threshold" placeholder="10000" min="0"></div>
+              <div class="form-group"><label style="padding-top:4px;">Note</label><p style="font-size:12px;color:#8a9bbd;margin-top:8px;">Expenses at or above this amount require manager approval before being marked complete.</p></div>
+            </div>
+          </div>
+          <div class="settings-section"><h4>Exchange Rates</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>USD → ETB Rate</label><input type="number" id="set-usd-rate" placeholder="e.g. 125" min="0" step="0.01"></div>
+              <div class="form-group"><label>EUR → ETB Rate</label><input type="number" id="set-eur-rate" placeholder="e.g. 135" min="0" step="0.01"></div>
+            </div>
+          </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
             <button class="btn btn-secondary" onclick="signOut()">Sign Out</button>
           </div>
         </div></div>
+      </div>
+
+      <!-- BUDGET PLANNING -->
+      <div id="page-budget" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div class="stat-value" id="budget-total">ETB 0</div><div class="stat-label">Total Budget</div></div>
+          <div class="stat-card red"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="stat-value" id="budget-used">ETB 0</div><div class="stat-label">Used This Month</div></div>
+          <div class="stat-card green"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div><div class="stat-value" id="budget-remaining">ETB 0</div><div class="stat-label">Remaining</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Monthly Budgets — <span id="budgetMonthLabel"></span></h3><button class="btn btn-primary btn-sm" onclick="openBudgetModal()">+ Set Budget</button></div>
+        <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Remaining</th><th>Progress</th><th></th></tr></thead><tbody id="budgetTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- VENDORS -->
+      <div id="page-vendors" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="stat-value" id="vendor-count">0</div><div class="stat-label">Total Vendors</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Supplier Directory</h3><button class="btn btn-primary btn-sm" onclick="openVendorModal()">+ Add Vendor</button></div>
+        <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Phone</th><th>TIN</th><th>Payment Terms</th><th>Actions</th></tr></thead><tbody id="vendorsTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- PURCHASE ORDERS -->
+      <div id="page-purchaseorders" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div><div class="stat-value" id="po-count">0</div><div class="stat-label">Total POs</div></div>
+          <div class="stat-card orange"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-value" id="po-pending-count">0</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card green"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-value" id="po-total-val">ETB 0</div><div class="stat-label">Total Value</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Purchase Orders</h3><button class="btn btn-primary btn-sm" onclick="openPOModal()">+ New PO</button></div>
+        <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>PO #</th><th>Date</th><th>Vendor</th><th>Items</th><th>Total</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead><tbody id="posTable"><tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div id="page-projects" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="stat-value" id="proj-count">0</div><div class="stat-label">Total Projects</div></div>
+          <div class="stat-card green"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-value" id="proj-active">0</div><div class="stat-label">Active</div></div>
+          <div class="stat-card purple"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9c27b0" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-value" id="proj-value">ETB 0</div><div class="stat-label">Total Contract Value</div></div>
+        </div>
+        <div id="projectCards" class="project-cards"></div>
+      </div>
+
+      <!-- PAYROLL -->
+      <div id="page-payroll" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00bcd4" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-value" id="pay-count">0</div><div class="stat-label">Employees</div></div>
+          <div class="stat-card orange"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-value" id="pay-this-month">ETB 0</div><div class="stat-label">This Month Payroll</div></div>
+          <div class="stat-card red"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-value" id="pay-total">ETB 0</div><div class="stat-label">Total Paid</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Payroll Records</h3><button class="btn btn-primary btn-sm" onclick="openPayrollModal()">+ Add Payroll</button></div>
+        <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Month</th><th>Employee</th><th>Position</th><th>Base Salary</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Actions</th></tr></thead><tbody id="payrollTable"><tr><td colspan="8" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- APPROVALS -->
+      <div id="page-approvals" class="page">
+        <div class="stats-grid">
+          <div class="stat-card orange"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-value" id="approval-count">0</div><div class="stat-label">Pending Approvals</div></div>
+          <div class="stat-card red"><div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-value" id="approval-total">ETB 0</div><div class="stat-label">Total Value Pending</div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3>Expenses Awaiting Approval</h3></div>
+        <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Date</th><th>Reason</th><th>Type</th><th>Amount</th><th>Requested By</th><th>Actions</th></tr></thead><tbody id="approvalsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- AUDIT LOG -->
+      <div id="page-auditlog" class="page">
+        <div class="card"><div class="card-header"><h3>System Audit Log</h3><span style="font-size:12px;color:#8a9bbd;">Last 100 records</span></div>
+        <div style="padding:0;overflow-x:auto;"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th></tr></thead><tbody id="auditTable"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
       </div>
 
     </div><!-- /content -->
@@ -448,6 +551,9 @@ canvas{max-height:220px;}
         <div class="form-group"><label>Deposit to Account</label><select id="sale-account"><option value="">Not deposited</option></select></div>
         <div class="form-group"><label>Recorded By</label><input type="text" id="sale-recorded"></div>
         <div class="form-group"><label>Apply VAT (15%)</label><select id="sale-vat"><option value="1">Yes</option><option value="0">No</option></select></div>
+        <div class="form-group"><label>Currency</label><select id="sale-currency" onchange="toggleCurrencyRate('sale')"><option value="ETB">ETB</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>
+        <div class="form-group" id="sale-rate-group" style="display:none;"><label>Exchange Rate (1 unit = ? ETB)</label><input type="number" id="sale-rate" min="0" step="0.01" placeholder="e.g. 125"></div>
+        <div class="form-group"><label>Project (optional)</label><select id="sale-project"><option value="">No project</option></select></div>
       </div>
       <div style="margin-top:18px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="font-size:13px;">Items</strong><button class="btn btn-secondary btn-sm" onclick="addSaleItem()">+ Add Item</button></div>
@@ -477,10 +583,14 @@ canvas{max-height:220px;}
       <div class="form-grid">
         <div class="form-group"><label>Reason *</label><input type="text" id="exp-reason" placeholder="e.g. supply, salary..."></div>
         <div class="form-group"><label>Type *</label><select id="exp-type"><option>Office Supplies</option><option>Salary</option><option>Rent</option><option>Utilities</option><option>Transport</option><option>Marketing</option><option>Equipment</option><option>Maintenance</option><option>Raw Materials</option><option>Other</option></select></div>
-        <div class="form-group"><label>Amount (ETB) *</label><input type="number" id="exp-amount" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label>Currency</label><select id="exp-currency" onchange="toggleCurrencyRate('exp')"><option value="ETB">ETB (Ethiopian Birr)</option><option value="USD">USD (US Dollar)</option><option value="EUR">EUR (Euro)</option></select></div>
+        <div class="form-group"><label>Amount *</label><input type="number" id="exp-amount" min="0" step="0.01" placeholder="0.00" oninput="calcCurrencyETB('exp')"></div>
+        <div class="form-group" id="exp-rate-group" style="display:none;"><label>Exchange Rate (1 USD/EUR = ? ETB)</label><input type="number" id="exp-rate" min="0" step="0.01" placeholder="e.g. 125" oninput="calcCurrencyETB('exp')"></div>
+        <div class="form-group" id="exp-etb-group" style="display:none;"><label>ETB Equivalent</label><input type="text" id="exp-etb-display" readonly style="background:#f8f9fb;"></div>
         <div class="form-group"><label>Date *</label><input type="date" id="exp-date"></div>
         <div class="form-group"><label>Bank Account</label><select id="exp-account"><option value="">Select account...</option></select></div>
-        <div class="form-group"><label>Status</label><select id="exp-status"><option>Completed</option><option>Pending</option><option>Approved</option></select></div>
+        <div class="form-group"><label>Status</label><select id="exp-status"><option>Completed</option><option>Pending</option><option>Approved</option><option>Pending Approval</option></select></div>
+        <div class="form-group"><label>Project (optional)</label><select id="exp-project"><option value="">No project</option></select></div>
         <div class="form-group"><label>Requested By</label><input type="text" id="exp-requested" placeholder="Name"></div>
         <div class="form-group"><label>Approved By</label><input type="text" id="exp-approved" placeholder="Name"></div>
         <div class="form-group full"><label>Notes</label><textarea id="exp-notes" placeholder="Additional notes..."></textarea></div>
@@ -580,6 +690,101 @@ canvas{max-height:220px;}
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button><button class="btn btn-primary" onclick="createStaffUser()">Create Account</button></div>
   </div>
 </div>
+<!-- BUDGET MODAL -->
+<div class="modal-overlay" id="budgetModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><h3>Set Budget</h3><button class="close-btn" onclick="closeModal('budgetModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Month *</label><input type="month" id="bgt-month"></div>
+        <div class="form-group"><label>Category *</label><select id="bgt-category"><option>Office Supplies</option><option>Salary</option><option>Rent</option><option>Utilities</option><option>Transport</option><option>Marketing</option><option>Equipment</option><option>Maintenance</option><option>Raw Materials</option><option>Other</option></select></div>
+        <div class="form-group full"><label>Budget Amount (ETB) *</label><input type="number" id="bgt-amount" min="0" step="0.01" placeholder="0.00"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancel</button><button class="btn btn-primary" onclick="saveBudget()">Save Budget</button></div>
+  </div>
+</div>
+
+<!-- VENDOR MODAL -->
+<div class="modal-overlay" id="vendorModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><h3 id="vendorModalTitle">Add Vendor</h3><button class="close-btn" onclick="closeModal('vendorModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Vendor Name *</label><input type="text" id="vnd-name" placeholder="Company or person name"></div>
+        <div class="form-group"><label>Contact Person</label><input type="text" id="vnd-contact" placeholder="Contact name"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="vnd-email" placeholder="vendor@email.com"></div>
+        <div class="form-group"><label>Phone</label><input type="text" id="vnd-phone" placeholder="+251..."></div>
+        <div class="form-group"><label>TIN Number</label><input type="text" id="vnd-tin" placeholder="Vendor TIN"></div>
+        <div class="form-group"><label>Payment Terms</label><select id="vnd-terms"><option>Net 7</option><option>Net 15</option><option>Net 30</option><option>Net 60</option><option>Cash on Delivery</option><option>Prepaid</option></select></div>
+        <div class="form-group full"><label>Notes</label><textarea id="vnd-notes" placeholder="Additional notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('vendorModal')">Cancel</button><button class="btn btn-primary" onclick="saveVendor()">Save Vendor</button></div>
+  </div>
+</div>
+
+<!-- PURCHASE ORDER MODAL -->
+<div class="modal-overlay" id="poModal">
+  <div class="modal">
+    <div class="modal-header"><h3>New Purchase Order</h3><button class="close-btn" onclick="closeModal('poModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Vendor</label><select id="po-vendor"><option value="">Select vendor...</option></select></div>
+        <div class="form-group"><label>Order Date *</label><input type="date" id="po-date"></div>
+        <div class="form-group"><label>Expected Delivery</label><input type="date" id="po-due"></div>
+        <div class="form-group"><label>Status</label><select id="po-status"><option>Pending</option><option>Approved</option><option>Sent</option><option>Received</option><option>Cancelled</option></select></div>
+      </div>
+      <div style="margin-top:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="font-size:13px;">Items</strong><button class="btn btn-secondary btn-sm" onclick="poItems.push({name:'',sku:'',qty:1,price:0});renderPOItems()">+ Add Item</button></div>
+        <table class="items-table"><thead><tr><th>#</th><th>Description *</th><th>SKU</th><th>Qty *</th><th>Unit Price *</th><th>Subtotal</th><th></th></tr></thead><tbody id="poItemsBody"></tbody></table>
+        <div class="item-total">Total: <span id="poGrandTotal" style="color:#00bcd4;">ETB 0.00</span></div>
+      </div>
+      <div class="form-grid" style="margin-top:14px;"><div class="form-group full"><label>Notes</label><textarea id="po-notes" placeholder="Delivery instructions, terms..."></textarea></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('poModal')">Cancel</button><button class="btn btn-primary" onclick="savePO()">Create PO</button></div>
+  </div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-header"><h3 id="projModalTitle">New Project</h3><button class="close-btn" onclick="closeModal('projectModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Project Name *</label><input type="text" id="proj-name" placeholder="e.g. WHO Borehole Supply Q3"></div>
+        <div class="form-group"><label>Client / Organization *</label><input type="text" id="proj-client" placeholder="Client name"></div>
+        <div class="form-group"><label>Client Type</label><select id="proj-client-type"><option>NGO</option><option>Government</option><option>Local</option><option>Private</option></select></div>
+        <div class="form-group"><label>Contract Value (ETB)</label><input type="number" id="proj-value" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label>Status</label><select id="proj-status"><option>Active</option><option>Completed</option><option>On Hold</option><option>Cancelled</option></select></div>
+        <div class="form-group"><label>Start Date</label><input type="date" id="proj-start"></div>
+        <div class="form-group"><label>End Date</label><input type="date" id="proj-end"></div>
+        <div class="form-group full"><label>Notes</label><textarea id="proj-notes" placeholder="Contract details, notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('projectModal')">Cancel</button><button class="btn btn-primary" onclick="saveProject()">Save Project</button></div>
+  </div>
+</div>
+
+<!-- PAYROLL MODAL -->
+<div class="modal-overlay" id="payrollModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><h3>Add Payroll Record</h3><button class="close-btn" onclick="closeModal('payrollModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Employee Name *</label><input type="text" id="pay-employee" placeholder="Full name"></div>
+        <div class="form-group"><label>Position</label><input type="text" id="pay-position" placeholder="e.g. Accountant"></div>
+        <div class="form-group"><label>Month *</label><input type="month" id="pay-month"></div>
+        <div class="form-group"><label>Base Salary (ETB) *</label><input type="number" id="pay-base" min="0" step="0.01" placeholder="0.00" oninput="calcNetPay()"></div>
+        <div class="form-group"><label>Deductions (ETB)</label><input type="number" id="pay-deductions" min="0" step="0.01" value="0" oninput="calcNetPay()"></div>
+        <div class="form-group"><label>Net Pay</label><input type="text" id="pay-net" readonly style="background:#f8f9fb;font-weight:700;color:#2e7d32;"></div>
+        <div class="form-group full"><label>Notes</label><textarea id="pay-notes" placeholder="Additional notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('payrollModal')">Cancel</button><button class="btn btn-primary" onclick="savePayroll()">Save</button></div>
+  </div>
+</div>
+
 <script>
 // ===================== FIREBASE INIT =====================
 const firebaseConfig = {
@@ -693,7 +898,14 @@ const pageInfo = {
   invoices:{title:'Invoices',sub:'Create and manage client invoices'},
   inventory:{title:'Inventory & Products',sub:'71 SKUs - Mark II, Afridev, UPVC, Submersible & more'},
   users:{title:'Staff Management',sub:'Manage user accounts and roles'},
-  settings:{title:'Settings',sub:'Company and system configuration'}
+  settings:{title:'Settings',sub:'Company and system configuration'},
+  budget:{title:'Budget Planning',sub:'Set and track monthly expense budgets per category'},
+  vendors:{title:'Vendor Management',sub:'Manage suppliers and vendors'},
+  purchaseorders:{title:'Purchase Orders',sub:'Create and track purchase orders from vendors'},
+  projects:{title:'Projects & Contracts',sub:'Track revenue, costs, and P&L per contract'},
+  payroll:{title:'Payroll',sub:'Manage employee salaries and payments'},
+  approvals:{title:'Pending Approvals',sub:'Review and approve high-value expense requests'},
+  auditlog:{title:'Audit Log',sub:'Complete history of all system changes'}
 };
 
 function showPage(p){
@@ -712,7 +924,12 @@ function showPage(p){
     sales:'<button class="btn btn-primary btn-sm" onclick="openSaleModal()">+ New Sale</button>',
     expenses:'<button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ New Expense</button>',
     accounts:'<button class="btn btn-primary btn-sm" onclick="openAccountModal()">+ Add Account</button>',
-    invoices:'<button class="btn btn-primary btn-sm" onclick="openInvoiceModal()">+ New Invoice</button>'
+    invoices:'<button class="btn btn-primary btn-sm" onclick="openInvoiceModal()">+ New Invoice</button>',
+    budget:'<button class="btn btn-primary btn-sm" onclick="openBudgetModal()">+ Set Budget</button>',
+    vendors:'<button class="btn btn-primary btn-sm" onclick="openVendorModal()">+ Add Vendor</button>',
+    purchaseorders:'<button class="btn btn-primary btn-sm" onclick="openPOModal()">+ New PO</button>',
+    projects:'<button class="btn btn-primary btn-sm" onclick="openProjectModal()">+ New Project</button>',
+    payroll:'<button class="btn btn-primary btn-sm" onclick="openPayrollModal()">+ Add Payroll</button>'
   };
   acts.innerHTML = btnMap[p]||'';
   if(p==='dashboard') renderDashboard();
@@ -725,6 +942,13 @@ function showPage(p){
   if(p==='inventory'){ getProducts().then(()=>renderInventoryPage()); }
   if(p==='users') renderUsersTable();
   if(p==='settings') loadSettingsPage();
+  if(p==='budget') renderBudgetPage();
+  if(p==='vendors') renderVendorsPage();
+  if(p==='purchaseorders') renderPOsPage();
+  if(p==='projects') renderProjectsPage();
+  if(p==='payroll') renderPayrollPage();
+  if(p==='approvals') renderApprovalsPage();
+  if(p==='auditlog') renderAuditLogPage();
 }
 
 let editingAccountId = null;
@@ -796,6 +1020,9 @@ let saleItems=[];
 function openSaleModal(){
   saleItems=[{name:'',sku:'',qty:1,price:0}];
   getProducts();
+  populateProjectDropdown('sale-project');
+  document.getElementById('sale-currency').value='ETB';
+  document.getElementById('sale-rate-group').style.display='none';
   document.getElementById('sale-customer').value='';
   document.getElementById('sale-tin').value='';
   document.getElementById('sale-date').value=today();
@@ -830,6 +1057,9 @@ async function saveSale(){
   const applyVat=document.getElementById('sale-vat').value==='1';
   const vat=applyVat?sub*getVatRate():0;
   const total=sub+vat;
+  const currency=document.getElementById('sale-currency')?.value||'ETB';
+  const rate=parseFloat(document.getElementById('sale-rate')?.value)||1;
+  const projectId=document.getElementById('sale-project')?.value||'';
   const btn=document.getElementById('saveSaleBtn'); btn.disabled=true; btn.textContent='Saving...';
   try {
     await db.collection('sales').add({
@@ -838,8 +1068,10 @@ async function saveSale(){
       payment:document.getElementById('sale-payment').value, status:document.getElementById('sale-status').value,
       accountId:document.getElementById('sale-account').value, recorded:document.getElementById('sale-recorded').value,
       items:validItems, subtotal:sub, vat, total, vatApplied:applyVat,
+      currency, exchangeRate:currency!=='ETB'?rate:null, projectId,
       createdAt:firebase.firestore.FieldValue.serverTimestamp(), createdBy:currentUser.uid
     });
+    logAudit('CREATE_SALE',`${customer} - ${fmt(total)}`);
     closeModal('saleModal'); renderSalesPage(); showToast('Sale saved!','success');
   } catch(e){ showToast(e.message,'error'); }
   btn.disabled=false; btn.textContent='Save Sale';
@@ -909,25 +1141,42 @@ function openExpenseModal(){
   document.getElementById('exp-date').value=today();
   document.getElementById('exp-requested').value=currentUserProfile?.name||'';
   document.getElementById('exp-approved').value='';
-  populateAccountDropdowns(); openModal('expenseModal');
+  document.getElementById('exp-currency').value='ETB';
+  document.getElementById('exp-rate-group').style.display='none';
+  document.getElementById('exp-etb-group').style.display='none';
+  populateAccountDropdowns();
+  populateProjectDropdown('exp-project');
+  openModal('expenseModal');
 }
 
 async function saveExpense(){
   const reason=document.getElementById('exp-reason').value.trim();
-  const amount=parseFloat(document.getElementById('exp-amount').value);
-  if(!reason||isNaN(amount)||amount<=0){ showToast('Reason and valid amount required','error'); return; }
+  const inputAmount=parseFloat(document.getElementById('exp-amount').value);
+  if(!reason||isNaN(inputAmount)||inputAmount<=0){ showToast('Reason and valid amount required','error'); return; }
+  const currency=document.getElementById('exp-currency')?.value||'ETB';
+  const rate=parseFloat(document.getElementById('exp-rate')?.value)||1;
+  const etbAmount=currency!=='ETB'?inputAmount*rate:inputAmount;
+  const projectId=document.getElementById('exp-project')?.value||'';
+  const sett=getSettings();
+  const threshold=parseFloat(sett.approvalThreshold)||10000;
+  let status=document.getElementById('exp-status').value;
+  if(etbAmount>=threshold&&(status==='Completed'||status==='Pending')){ status='Pending Approval'; }
   try {
     await db.collection('expenses').add({
-      reason, type:document.getElementById('exp-type').value, amount,
+      reason, type:document.getElementById('exp-type').value,
+      amount:etbAmount, originalAmount:currency!=='ETB'?inputAmount:null,
+      currency, exchangeRate:currency!=='ETB'?rate:null,
       date:document.getElementById('exp-date').value,
       accountId:document.getElementById('exp-account').value,
-      status:document.getElementById('exp-status').value,
+      status, projectId,
       requested:document.getElementById('exp-requested').value,
       approved:document.getElementById('exp-approved').value,
       notes:document.getElementById('exp-notes').value,
       createdAt:firebase.firestore.FieldValue.serverTimestamp(), createdBy:currentUser.uid
     });
-    closeModal('expenseModal'); renderExpensePage(); showToast('Expense saved!','success');
+    logAudit('CREATE_EXPENSE',`${reason} - ${fmt(etbAmount)}`);
+    closeModal('expenseModal'); renderExpensePage();
+    showToast(status==='Pending Approval'?'Submitted for approval (above threshold)':'Expense saved!','success');
   } catch(e){ showToast(e.message,'error'); }
 }
 
@@ -1188,10 +1437,13 @@ function loadSettingsPage(){
   document.getElementById('set-role').value=({admin:'Admin',manager:'Finance Manager',entry:'Data Entry',viewer:'Viewer'})[currentUserProfile?.role]||' - ';
   document.getElementById('set-vat').value=s.vat||15;
   document.getElementById('set-vatreg').value=s.vatreg||'';
+  document.getElementById('set-threshold').value=s.approvalThreshold||10000;
+  document.getElementById('set-usd-rate').value=s.usdRate||'';
+  document.getElementById('set-eur-rate').value=s.eurRate||'';
 }
 
 async function saveSettings(){
-  const sett={company:document.getElementById('set-company').value,tin:document.getElementById('set-tin').value,address:document.getElementById('set-address').value,phone:document.getElementById('set-phone').value,vat:document.getElementById('set-vat').value,vatreg:document.getElementById('set-vatreg').value};
+  const sett={company:document.getElementById('set-company').value,tin:document.getElementById('set-tin').value,address:document.getElementById('set-address').value,phone:document.getElementById('set-phone').value,vat:document.getElementById('set-vat').value,vatreg:document.getElementById('set-vatreg').value,approvalThreshold:document.getElementById('set-threshold').value,usdRate:document.getElementById('set-usd-rate').value,eurRate:document.getElementById('set-eur-rate').value};
   localStorage.setItem('efda_settings',JSON.stringify(sett));
   const name=document.getElementById('set-name').value.trim();
   if(name&&name!==currentUserProfile?.name){
@@ -1204,6 +1456,7 @@ async function saveSettings(){
 async function deleteDoc(col,id,refreshFn){
   if(!confirm('Delete this record? This cannot be undone.')) return;
   await db.collection(col).doc(id).delete();
+  logAudit('DELETE',`${col}/${id}`);
   showToast('Deleted','success');
   if(refreshFn) refreshFn();
 }
@@ -1514,6 +1767,351 @@ if('serviceWorker' in navigator){
     reg.update();
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
   }).catch(()=>{});
+}
+
+// ===================== MULTI-CURRENCY HELPERS =====================
+function toggleCurrencyRate(prefix){
+  const curr=document.getElementById(prefix+'-currency')?.value||'ETB';
+  const show=curr!=='ETB';
+  const rg=document.getElementById(prefix+'-rate-group');
+  const eg=document.getElementById(prefix+'-etb-group');
+  if(rg) rg.style.display=show?'':'none';
+  if(eg) eg.style.display=show?'':'none';
+  if(!show&&document.getElementById(prefix+'-rate')) document.getElementById(prefix+'-rate').value='';
+  // Pre-fill rate from settings
+  if(show){
+    const s=getSettings();
+    const r=curr==='USD'?s.usdRate:s.eurRate;
+    if(r&&document.getElementById(prefix+'-rate')) document.getElementById(prefix+'-rate').value=r;
+    calcCurrencyETB(prefix);
+  }
+}
+function calcCurrencyETB(prefix){
+  const amt=parseFloat(document.getElementById(prefix+'-amount')?.value)||0;
+  const rate=parseFloat(document.getElementById(prefix+'-rate')?.value)||0;
+  const disp=document.getElementById(prefix+'-etb-display');
+  if(disp) disp.value=rate?('ETB '+(amt*rate).toFixed(2)):'Enter rate above';
+}
+
+// ===================== AUDIT LOG =====================
+async function logAudit(action,details){
+  if(!currentUser) return;
+  try{
+    await db.collection('auditLog').add({
+      action, details,
+      userId:currentUser.uid, userName:currentUserProfile?.name||currentUser.email,
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){}
+}
+async function renderAuditLogPage(){
+  const snap=await db.collection('auditLog').orderBy('timestamp','desc').limit(100).get();
+  const logs=snap.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('auditTable').innerHTML=logs.length?logs.map(l=>`<tr>
+    <td style="font-family:monospace;font-size:11px;color:#8a9bbd;white-space:nowrap;">${l.timestamp?.toDate?l.timestamp.toDate().toLocaleString('en-US'):' - '}</td>
+    <td><strong>${l.userName||' - '}</strong></td>
+    <td><span class="badge badge-info">${l.action||' - '}</span></td>
+    <td>${l.details||' - '}</td>
+  </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:40px;color:#8a9bbd;">No audit records yet</td></tr>';
+}
+
+// ===================== BUDGET PLANNING =====================
+async function renderBudgetPage(){
+  const month=new Date().toISOString().slice(0,7);
+  document.getElementById('budgetMonthLabel').textContent=monthStr();
+  const [bSnap,eSnap]=await Promise.all([
+    db.collection('budgets').where('month','==',month).get(),
+    db.collection('expenses').get()
+  ]);
+  const budgets={};
+  bSnap.docs.forEach(d=>{const b=d.data();budgets[b.category]={...b,id:d.id};});
+  const expByCat={};
+  eSnap.docs.forEach(d=>{const e=d.data();if(e.date&&e.date.startsWith(month))expByCat[e.type]=(expByCat[e.type]||0)+Number(e.amount);});
+  const cats=['Office Supplies','Salary','Rent','Utilities','Transport','Marketing','Equipment','Maintenance','Raw Materials','Other'];
+  let totBudget=0,totUsed=0;
+  const rows=cats.map(cat=>{
+    const b=budgets[cat]; const used=expByCat[cat]||0; const budget=b?Number(b.amount):0;
+    totBudget+=budget; totUsed+=used;
+    const pct=budget>0?Math.min((used/budget)*100,100):0;
+    const cls=pct>=100?'over':pct>=80?'warn':'ok';
+    return `<tr>
+      <td><strong>${cat}</strong></td>
+      <td>${budget>0?fmt(budget):'<span style="color:#8a9bbd;">Not set</span>'}</td>
+      <td>${fmt(used)}</td>
+      <td class="${budget>0&&used>budget?'amount-negative':'amount-positive'}">${budget>0?fmt(budget-used):' - '}</td>
+      <td style="min-width:160px;">${budget>0?`<div class="budget-bar"><div class="budget-fill ${cls}" style="width:${pct.toFixed(1)}%"></div></div><div class="budget-label"><span>${pct.toFixed(0)}%</span>${pct>=100?'<span style="color:#f44336;">⚠ Over!</span>':''}</div>`:'<span style="color:#8a9bbd;font-size:12px;">No budget set</span>'}</td>
+      <td><button class="icon-btn" onclick="openBudgetModal('${cat}',${budget})">Set</button></td>
+    </tr>`;
+  });
+  document.getElementById('budget-total').textContent=fmt(totBudget);
+  document.getElementById('budget-used').textContent=fmt(totUsed);
+  document.getElementById('budget-remaining').textContent=fmt(totBudget-totUsed);
+  document.getElementById('budgetTable').innerHTML=rows.join('');
+}
+function openBudgetModal(category='',current=0){
+  document.getElementById('bgt-category').value=category||'Office Supplies';
+  document.getElementById('bgt-amount').value=current||'';
+  document.getElementById('bgt-month').value=new Date().toISOString().slice(0,7);
+  openModal('budgetModal');
+}
+async function saveBudget(){
+  const cat=document.getElementById('bgt-category').value;
+  const amt=parseFloat(document.getElementById('bgt-amount').value);
+  const month=document.getElementById('bgt-month').value;
+  if(!cat||isNaN(amt)||amt<=0||!month){showToast('Fill all fields','error');return;}
+  const ex=await db.collection('budgets').where('month','==',month).where('category','==',cat).get();
+  if(!ex.empty){await db.collection('budgets').doc(ex.docs[0].id).update({amount:amt,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+  else{await db.collection('budgets').add({category:cat,amount:amt,month,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:currentUser.uid});}
+  logAudit('SET_BUDGET',`${cat}: ${fmt(amt)} for ${month}`);
+  closeModal('budgetModal'); renderBudgetPage(); showToast('Budget set!','success');
+}
+
+// ===================== VENDORS =====================
+async function renderVendorsPage(){
+  const snap=await db.collection('vendors').orderBy('name').get();
+  const vendors=snap.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('vendor-count').textContent=vendors.length;
+  document.getElementById('vendorsTable').innerHTML=vendors.length?vendors.map(v=>`<tr>
+    <td><strong>${v.name}</strong></td><td>${v.contact||' - '}</td><td>${v.email||' - '}</td>
+    <td>${v.phone||' - '}</td><td>${v.tin||' - '}</td><td>${v.paymentTerms||'Net 30'}</td>
+    <td><div class="action-btns"><button class="icon-btn" onclick="openVendorModal('${v.id}')">Edit</button><button class="icon-btn del" onclick="deleteDoc('vendors','${v.id}',renderVendorsPage)">Del</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:30px;color:#8a9bbd;">No vendors yet</td></tr>';
+}
+let editingVendorId=null;
+function openVendorModal(id=null){
+  editingVendorId=id;
+  document.getElementById('vendorModalTitle').textContent=id?'Edit Vendor':'Add Vendor';
+  if(!id){['vnd-name','vnd-contact','vnd-email','vnd-phone','vnd-tin','vnd-notes'].forEach(x=>document.getElementById(x).value='');document.getElementById('vnd-terms').value='Net 30';}
+  else{db.collection('vendors').doc(id).get().then(d=>{if(!d.exists)return;const v=d.data();document.getElementById('vnd-name').value=v.name||'';document.getElementById('vnd-contact').value=v.contact||'';document.getElementById('vnd-email').value=v.email||'';document.getElementById('vnd-phone').value=v.phone||'';document.getElementById('vnd-tin').value=v.tin||'';document.getElementById('vnd-terms').value=v.paymentTerms||'Net 30';document.getElementById('vnd-notes').value=v.notes||'';});}
+  openModal('vendorModal');
+}
+async function saveVendor(){
+  const name=document.getElementById('vnd-name').value.trim();
+  if(!name){showToast('Vendor name required','error');return;}
+  const data={name,contact:document.getElementById('vnd-contact').value,email:document.getElementById('vnd-email').value,phone:document.getElementById('vnd-phone').value,tin:document.getElementById('vnd-tin').value,paymentTerms:document.getElementById('vnd-terms').value,notes:document.getElementById('vnd-notes').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{
+    if(editingVendorId){await db.collection('vendors').doc(editingVendorId).update(data);showToast('Vendor updated!');}
+    else{await db.collection('vendors').add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:currentUser.uid});showToast('Vendor added!','success');}
+    logAudit(editingVendorId?'UPDATE_VENDOR':'CREATE_VENDOR',name);
+    closeModal('vendorModal'); renderVendorsPage();
+  }catch(e){showToast(e.message,'error');}
+}
+
+// ===================== PURCHASE ORDERS =====================
+let poItems=[];
+function openPOModal(){
+  poItems=[{name:'',sku:'',qty:1,price:0}];
+  const sel=document.getElementById('po-vendor');
+  sel.innerHTML='<option value="">Select vendor...</option>';
+  db.collection('vendors').get().then(snap=>snap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().name;sel.appendChild(o);}));
+  document.getElementById('po-date').value=today();
+  document.getElementById('po-due').value='';
+  document.getElementById('po-notes').value='';
+  document.getElementById('po-status').value='Pending';
+  renderPOItems(); openModal('poModal');
+}
+function renderPOItems(){
+  document.getElementById('poItemsBody').innerHTML=poItems.map((it,i)=>`<tr class="item-row">
+    <td>${i+1}</td>
+    <td><input type="text" value="${it.name}" placeholder="Description..." oninput="poItems[${i}].name=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:100%;"></td>
+    <td><input type="text" value="${it.sku||''}" placeholder="SKU" oninput="poItems[${i}].sku=this.value" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:80px;"></td>
+    <td><input type="number" value="${it.qty}" min="1" oninput="poItems[${i}].qty=+this.value;updatePOTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:65px;"></td>
+    <td><input type="number" value="${it.price}" min="0" step="0.01" oninput="poItems[${i}].price=+this.value;updatePOTotal()" style="border:1px solid #dde3ed;border-radius:4px;padding:6px;font-size:12px;width:90px;"></td>
+    <td style="color:#00bcd4;font-weight:600;">ETB ${((it.qty||0)*(it.price||0)).toFixed(2)}</td>
+    <td><button onclick="poItems.splice(${i},1);if(!poItems.length)poItems.push({name:'',sku:'',qty:1,price:0});renderPOItems()" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:18px;">&times;</button></td>
+  </tr>`).join('');
+  updatePOTotal();
+}
+function updatePOTotal(){
+  const total=poItems.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  document.getElementById('poGrandTotal').textContent='ETB '+total.toFixed(2);
+}
+async function savePO(){
+  const valid=poItems.filter(i=>i.name.trim()&&i.qty>0);
+  if(!valid.length){showToast('Add at least one item','error');return;}
+  const total=valid.reduce((s,i)=>s+i.qty*i.price,0);
+  const snap=await db.collection('purchaseOrders').get();
+  const num=snap.size+1;
+  const vendorSel=document.getElementById('po-vendor');
+  const vendorName=vendorSel.value?(vendorSel.selectedOptions[0]?.text||''):'';
+  await db.collection('purchaseOrders').add({
+    poNumber:'PO-'+String(num).padStart(4,'0'),vendorId:vendorSel.value,vendorName,
+    date:document.getElementById('po-date').value,due:document.getElementById('po-due').value,
+    status:document.getElementById('po-status').value,items:valid,total,
+    notes:document.getElementById('po-notes').value,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:currentUser.uid
+  });
+  logAudit('CREATE_PO',`PO-${String(num).padStart(4,'0')} - ${vendorName} - ${fmt(total)}`);
+  closeModal('poModal'); renderPOsPage(); showToast('Purchase Order created!','success');
+}
+async function renderPOsPage(){
+  const snap=await db.collection('purchaseOrders').orderBy('createdAt','desc').get();
+  const pos=snap.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('po-count').textContent=pos.length;
+  document.getElementById('po-pending-count').textContent=pos.filter(p=>p.status==='Pending').length;
+  document.getElementById('po-total-val').textContent=fmt(pos.reduce((s,p)=>s+Number(p.total||0),0));
+  document.getElementById('posTable').innerHTML=pos.length?pos.map(po=>`<tr>
+    <td style="color:#00bcd4;font-weight:700;">${po.poNumber}</td>
+    <td>${po.date}</td><td>${po.vendorName||' - '}</td>
+    <td>${(po.items||[]).length}</td>
+    <td class="amount-positive">${fmt(po.total)}</td>
+    <td>${po.due||' - '}</td>
+    <td><span class="badge ${po.status==='Received'?'badge-success':po.status==='Cancelled'?'badge-danger':po.status==='Approved'?'badge-info':'badge-warning'}">${po.status}</span></td>
+    <td><div class="action-btns"><button class="icon-btn" onclick="cyclePOStatus('${po.id}','${po.status}')">Update</button><button class="icon-btn del" onclick="deleteDoc('purchaseOrders','${po.id}',renderPOsPage)">Del</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:30px;color:#8a9bbd;">No purchase orders yet</td></tr>';
+}
+async function cyclePOStatus(id,current){
+  const list=['Pending','Approved','Sent','Received','Cancelled'];
+  const next=prompt(`Current status: ${current}\nEnter new status:\n${list.join(', ')}`);
+  if(!next||!list.includes(next)) return;
+  await db.collection('purchaseOrders').doc(id).update({status:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  logAudit('UPDATE_PO_STATUS',`${id} → ${next}`);
+  renderPOsPage(); showToast(`Status: ${next}`,'success');
+}
+
+// ===================== PROJECTS =====================
+async function populateProjectDropdown(selectId){
+  const el=document.getElementById(selectId); if(!el) return;
+  const snap=await db.collection('projects').where('status','==','Active').get();
+  el.innerHTML='<option value="">No project</option>'+snap.docs.map(d=>`<option value="${d.id}">${d.data().name}</option>`).join('');
+}
+async function renderProjectsPage(){
+  const [pSnap,sSnap,eSnap]=await Promise.all([
+    db.collection('projects').orderBy('createdAt','desc').get(),
+    db.collection('sales').get(),
+    db.collection('expenses').get()
+  ]);
+  const projects=pSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const salesByProj={},expByProj={};
+  sSnap.docs.forEach(d=>{const s=d.data();if(s.projectId)salesByProj[s.projectId]=(salesByProj[s.projectId]||0)+Number(s.total);});
+  eSnap.docs.forEach(d=>{const e=d.data();if(e.projectId)expByProj[e.projectId]=(expByProj[e.projectId]||0)+Number(e.amount);});
+  document.getElementById('proj-count').textContent=projects.length;
+  document.getElementById('proj-active').textContent=projects.filter(p=>p.status==='Active').length;
+  document.getElementById('proj-value').textContent=fmt(projects.reduce((s,p)=>s+Number(p.contractValue||0),0));
+  const container=document.getElementById('projectCards');
+  if(!projects.length){container.innerHTML='<div style="text-align:center;padding:40px;color:#8a9bbd;background:#fff;border-radius:10px;">No projects yet. Click + New Project to start.</div>';return;}
+  container.innerHTML=projects.map(p=>{
+    const earned=salesByProj[p.id]||0, spent=expByProj[p.id]||0, pnl=earned-spent;
+    const cls=(p.status||'Active').toLowerCase().replace(' ','-');
+    return `<div class="proj-card ${cls}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div><div class="proj-name">${p.name}</div><div class="proj-client">${p.client} · <span class="badge badge-info" style="font-size:10px;">${p.clientType||'Local'}</span></div></div>
+        <div style="display:flex;gap:4px;"><button class="icon-btn" onclick="openProjectModal('${p.id}')">Edit</button><button class="icon-btn del" onclick="deleteDoc('projects','${p.id}',renderProjectsPage)">Del</button></div>
+      </div>
+      <div class="proj-meta">
+        <div class="proj-meta-item"><div class="val">${fmt(p.contractValue||0)}</div><div class="lbl">Contract</div></div>
+        <div class="proj-meta-item"><div class="val amount-positive">${fmt(earned)}</div><div class="lbl">Earned</div></div>
+        <div class="proj-meta-item"><div class="val amount-negative">${fmt(spent)}</div><div class="lbl">Spent</div></div>
+        <div class="proj-meta-item"><div class="val ${pnl>=0?'amount-positive':'amount-negative'}">${fmt(pnl)}</div><div class="lbl">P&L</div></div>
+      </div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:11px;color:#8a9bbd;">
+        <span>${p.startDate||'Started'} → ${p.endDate||'Ongoing'}</span>
+        <span class="badge ${p.status==='Active'?'badge-success':p.status==='Completed'?'badge-gray':'badge-warning'}">${p.status||'Active'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+let editingProjectId=null;
+function openProjectModal(id=null){
+  editingProjectId=id;
+  document.getElementById('projModalTitle').textContent=id?'Edit Project':'New Project';
+  if(!id){['proj-name','proj-client','proj-notes','proj-end'].forEach(x=>document.getElementById(x).value='');document.getElementById('proj-value').value='';document.getElementById('proj-start').value=today();document.getElementById('proj-client-type').value='NGO';document.getElementById('proj-status').value='Active';}
+  else{db.collection('projects').doc(id).get().then(d=>{if(!d.exists)return;const p=d.data();document.getElementById('proj-name').value=p.name||'';document.getElementById('proj-client').value=p.client||'';document.getElementById('proj-client-type').value=p.clientType||'NGO';document.getElementById('proj-value').value=p.contractValue||'';document.getElementById('proj-start').value=p.startDate||today();document.getElementById('proj-end').value=p.endDate||'';document.getElementById('proj-status').value=p.status||'Active';document.getElementById('proj-notes').value=p.notes||'';});}
+  openModal('projectModal');
+}
+async function saveProject(){
+  const name=document.getElementById('proj-name').value.trim();
+  const client=document.getElementById('proj-client').value.trim();
+  if(!name||!client){showToast('Name and client required','error');return;}
+  const data={name,client,clientType:document.getElementById('proj-client-type').value,contractValue:parseFloat(document.getElementById('proj-value').value)||0,startDate:document.getElementById('proj-start').value,endDate:document.getElementById('proj-end').value,status:document.getElementById('proj-status').value,notes:document.getElementById('proj-notes').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{
+    if(editingProjectId){await db.collection('projects').doc(editingProjectId).update(data);showToast('Project updated!');}
+    else{await db.collection('projects').add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:currentUser.uid});showToast('Project created!','success');}
+    logAudit(editingProjectId?'UPDATE_PROJECT':'CREATE_PROJECT',`${name} - ${client}`);
+    closeModal('projectModal'); renderProjectsPage();
+  }catch(e){showToast(e.message,'error');}
+}
+
+// ===================== PAYROLL =====================
+async function renderPayrollPage(){
+  const snap=await db.collection('payroll').orderBy('createdAt','desc').get();
+  const records=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const thisMonth=new Date().toISOString().slice(0,7);
+  const monthRec=records.filter(r=>r.month===thisMonth);
+  const employees=new Set(records.map(r=>r.employeeName));
+  document.getElementById('pay-count').textContent=employees.size;
+  document.getElementById('pay-this-month').textContent=fmt(monthRec.reduce((s,r)=>s+Number(r.netPay||0),0));
+  document.getElementById('pay-total').textContent=fmt(records.filter(r=>r.status==='Paid').reduce((s,r)=>s+Number(r.netPay||0),0));
+  document.getElementById('payrollTable').innerHTML=records.length?records.map(r=>`<tr>
+    <td>${r.month}</td><td><strong>${r.employeeName}</strong></td><td>${r.position||' - '}</td>
+    <td>${fmt(r.baseSalary||0)}</td><td class="amount-negative">-${fmt(r.deductions||0)}</td>
+    <td class="amount-positive">${fmt(r.netPay||0)}</td>
+    <td><span class="badge ${r.status==='Paid'?'badge-success':'badge-warning'}">${r.status}</span></td>
+    <td><div class="action-btns">${r.status!=='Paid'?`<button class="icon-btn" onclick="markPayrollPaid('${r.id}')">Mark Paid</button>`:''}<button class="icon-btn del" onclick="deleteDoc('payroll','${r.id}',renderPayrollPage)">Del</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:30px;color:#8a9bbd;">No payroll records yet</td></tr>';
+}
+function openPayrollModal(){
+  ['pay-employee','pay-position','pay-notes'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('pay-month').value=new Date().toISOString().slice(0,7);
+  document.getElementById('pay-base').value='';
+  document.getElementById('pay-deductions').value='0';
+  document.getElementById('pay-net').value='';
+  openModal('payrollModal');
+}
+function calcNetPay(){
+  const base=parseFloat(document.getElementById('pay-base').value)||0;
+  const ded=parseFloat(document.getElementById('pay-deductions').value)||0;
+  document.getElementById('pay-net').value=fmt(base-ded);
+}
+async function savePayroll(){
+  const name=document.getElementById('pay-employee').value.trim();
+  const base=parseFloat(document.getElementById('pay-base').value);
+  const month=document.getElementById('pay-month').value;
+  if(!name||isNaN(base)||base<=0||!month){showToast('Fill all required fields','error');return;}
+  const ded=parseFloat(document.getElementById('pay-deductions').value)||0;
+  await db.collection('payroll').add({
+    employeeName:name,position:document.getElementById('pay-position').value,
+    month,baseSalary:base,deductions:ded,netPay:base-ded,
+    notes:document.getElementById('pay-notes').value,status:'Pending',
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:currentUser.uid
+  });
+  logAudit('CREATE_PAYROLL',`${name} - ${month} - ${fmt(base-ded)}`);
+  closeModal('payrollModal'); renderPayrollPage(); showToast('Payroll record added!','success');
+}
+async function markPayrollPaid(id){
+  await db.collection('payroll').doc(id).update({status:'Paid',paidAt:firebase.firestore.FieldValue.serverTimestamp(),paidBy:currentUserProfile?.name||''});
+  logAudit('PAYROLL_PAID',`Record ${id}`);
+  renderPayrollPage(); showToast('Marked as paid!','success');
+}
+
+// ===================== APPROVALS =====================
+async function renderApprovalsPage(){
+  const snap=await db.collection('expenses').orderBy('createdAt','desc').get();
+  const pending=snap.docs.map(d=>({id:d.id,...d.data()})).filter(e=>e.status==='Pending Approval');
+  document.getElementById('approval-count').textContent=pending.length;
+  document.getElementById('approval-total').textContent=fmt(pending.reduce((s,e)=>s+Number(e.amount||0),0));
+  document.getElementById('approvalsTable').innerHTML=pending.length?pending.map(e=>`<tr>
+    <td>${e.date}</td><td>${e.reason}</td><td>${e.type}</td>
+    <td class="amount-negative">-${fmt(e.amount)}${e.currency&&e.currency!=='ETB'?`<br><small style="color:#8a9bbd;">${e.originalAmount} ${e.currency}</small>`:''}</td>
+    <td>${e.requested||' - '}</td>
+    <td><div class="action-btns">
+      <button class="btn btn-success btn-sm" onclick="approveExpense('${e.id}')">✓ Approve</button>
+      <button class="btn btn-danger btn-sm" onclick="rejectExpense('${e.id}')">✗ Reject</button>
+    </div></td>
+  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:40px;color:#8a9bbd;">No pending approvals 🎉</td></tr>';
+}
+async function approveExpense(id){
+  if(!confirm('Approve this expense?')) return;
+  await db.collection('expenses').doc(id).update({status:'Approved',approved:currentUserProfile?.name||'',approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  logAudit('APPROVE_EXPENSE',`Expense ${id} approved by ${currentUserProfile?.name}`);
+  renderApprovalsPage(); showToast('Expense approved!','success');
+}
+async function rejectExpense(id){
+  const reason=prompt('Reason for rejection:');
+  if(reason===null) return;
+  await db.collection('expenses').doc(id).update({status:'Rejected',rejectionReason:reason,rejectedBy:currentUserProfile?.name||''});
+  logAudit('REJECT_EXPENSE',`Expense ${id} rejected: ${reason}`);
+  renderApprovalsPage(); showToast('Expense rejected.','error');
 }
 </script>
 </body>
